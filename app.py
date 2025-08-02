@@ -68,7 +68,7 @@ def load_artisanat_data():
         df['ref'] = df['ref'].fillna('NON-RÉFÉRENCÉ')
         df['date'] = df['date'].fillna('Inconnue')
         df['label'] = df['label'].fillna('non').str.lower()
-        df['certification'] = df['certification'].fillna('–')
+        df['certification'] = df['certification'].fillna('non disponible')
         
         # Extract dimensions
         df['dimensions'] = df['description'].apply(extract_dimensions)
@@ -212,30 +212,46 @@ def ask_question():
         return jsonify({"response": "Veuillez poser une question"})
 
     try:
-        # IMPROVED PROMPT for more structured, direct, and non-conversational responses
+        # Prompt amélioré pour des réponses ultra-directes et structurées
         prompt = f"""
-        Tu es un expert de l'artisanat marocain. Ton rôle est de fournir des informations concises, factuelles et strictement structurées en Markdown.
-        NE commence PAS par des salutations, des introductions ou des phrases de politesse comme "Bienvenue", "Nous sommes ravis", "Bonjour", "Je suis un expert".
-        NE termine PAS par des phrases de clôture comme "N'hésitez pas à nous poser d'autres questions".
-        Va directement au point.
+        Tu es un expert de l'artisanat marocain. Ton rôle est de fournir des informations concises, 
+        factuelles et strictement structurées en Markdown avec une approche directe sans détour.
+
+        Règles strictes :
+        1. Réponds exclusivement aux questions sur l'artisanat marocain
+        2. Va droit au but sans phrases d'introduction ou de conclusion
+        3. Utilise uniquement les informations du contexte fourni
+        4. Structure la réponse pour mettre en avant les informations clés
+        5. Sois concis - limite-toi aux faits essentiels
+        6. Si une information est manquante, indique-le simplement
 
         Formatage obligatoire :
-        - Les titres doivent être en gras avec des dièses (`#`).
-        - Les noms de produits et catégories doivent être en gras (`**`).
-        - Les caractéristiques spécifiques (dimensions, prix, origine) doivent être en italique (`*`).
-        - Utilise des listes à puces (`-`) pour énumérer les détails ou les produits.
+        - Titres principaux en (niveau 2)
+        - Sous-titres en (niveau 3) si nécessaire
+        - Noms de produits en gras
+        - Caractéristiques en italique (prix, dimensions, etc.)
+        - Listes à puces pour les détails techniques
+        - Tableaux pour les comparaisons ou spécifications multiples
 
-        Pour répondre à la question suivante, utilise uniquement les informations pertinentes fournies par le contexte et adhère strictement au formatage demandé :
+        Priorités de réponse :
+        1. Identifie la demande centrale de la question
+        2. Extrait les informations pertinentes du contexte
+        3. Structure la réponse par ordre d'importance
+        4. Élimine tout contenu superflu
 
         Question: {question}
         """
 
         response = qa_system.invoke(prompt)["result"]
-        return jsonify({"response": response})
+        
+        # Post-traitement pour renforcer la concision
+        cleaned_response = re.sub(r'\n{2,}', '\n\n', response)  # Supprime les sauts de ligne excessifs
+        cleaned_response = re.sub(r'\s{2,}', ' ', cleaned_response)  # Supprime les espaces multiples
+        
+        return jsonify({"response": cleaned_response})
 
     except Exception as e:
         return jsonify({"response": f"Erreur: {str(e)}"})
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

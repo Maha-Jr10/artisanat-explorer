@@ -138,3 +138,27 @@ async function sendMessage() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
+
+// Fonction pour utiliser une question dans le chatbot
+        function useQuestion(question) {
+            document.getElementById('user-input').value = question;
+            document.getElementById('user-input').focus();
+            
+            // Animation de feedback
+            const buttons = document.querySelectorAll('.use-question-btn');
+            buttons.forEach(btn => {
+                btn.innerHTML = '<i class="fas fa-comment-dots me-2"></i> Utiliser';
+                btn.style.background = 'rgba(196, 155, 99, 0.1)';
+                btn.style.color = 'var(--primary-dark)';
+            });
+            
+            event.target.innerHTML = '<i class="fas fa-check me-2"></i> Sélectionnée';
+            event.target.style.background = 'var(--primary)';
+            event.target.style.color = 'white';
+            
+            setTimeout(() => {
+                event.target.innerHTML = '<i class="fas fa-comment-dots me-2"></i> Utiliser';
+                event.target.style.background = 'rgba(196, 155, 99, 0.1)';
+                event.target.style.color = 'var(--primary-dark)';
+            }, 2000);
+        }
