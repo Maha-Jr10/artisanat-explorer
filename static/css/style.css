@@ -1,0 +1,956 @@
+/* CSS Variables - Added a few more for flexibility and consistency */
+:root {
+    --primary: #c49b63; /* Moroccan Gold */
+    --primary-dark: #8e7037; /* Darker Gold */
+    --secondary: #5d8aa8; /* Steel Blue (could be used for accents) */
+    --accent: #d14031; /* Vibrant Red (could be used for highlights) */
+    --light: #f8f5f0; /* Off-white / Cream */
+    --dark: #333; /* Dark Grey */
+    --darker: #1a1a1a; /* Very Dark Grey */
+    --background-light: #faf9f7; /* Very light background */
+    --background-gradient-start: #fdfaf6; /* Lighter background gradient */
+    --background-gradient-end: #ece7df; /* Slightly darker background gradient */
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-light); /* Using new variable */
+    color: var(--dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+    scroll-behavior: smooth; /* Smooth scroll for anchors */
+}
+
+
+/* Header */
+header {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                            url('https://images.unsplash.com/photo-1593696140826-c58b021acf8b?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1920&h=1080') no-repeat center center/cover;
+    height: 100vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* For the scroll indicator */
+}
+
+/* Sticky Nav - The Bootstrap Navbar handles position:fixed, but we can style its appearance */
+.navbar { /* Targeting Bootstrap's navbar class */
+    padding: 20px 0;
+    background: rgba(0, 0, 0, 0.6); /* Slightly darker background for sticky nav */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(5px);
+    transition: background 0.3s ease, padding 0.3s ease;
+}
+
+.navbar.scrolled {
+    padding: 10px 0;
+    background: rgba(0, 0, 0, 0.8); /* Even darker when scrolled */
+    box-shadow: var(--shadow);
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; /* Slightly larger */
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    font-weight: 700; /* Bolder logo */
+    letter-spacing: 1px;
+}
+
+.logo i {
+    margin-right: 12px; /* Slightly more space */
+    font-size: 2rem;
+    color: var(--primary);
+}
+
+/* .nav-links is now managed by Bootstrap's .navbar-nav */
+.navbar-nav .nav-item {
+        margin-left: 40px; /* More space between links */
+}
+
+.navbar-nav .nav-link { /* Targeting Bootstrap's nav-link */
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+    padding: 5px 0; /* Add padding for a larger hit area */
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--primary);
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -8px; /* Adjusted position */
+    left: 50%; /* Start from center */
+    transform: translateX(-50%); /* Center the line */
+    width: 0;
+    height: 3px; /* Thicker line */
+    background: var(--primary);
+    transition: width 0.3s ease; /* Only width transition */
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after { /* Active link style */
+    width: 100%;
+}
+
+.hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Center content */
+    text-align: center; /* Center text */
+    max-width: 900px; /* Wider content area */
+    padding: 0 20px;
+    margin: 0 auto; /* Center the hero content block */
+}
+
+.hero-content h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem; /* Larger font size */
+    margin-top: 80px;
+    margin-bottom: 25px; /* More space */
+    line-height: 1.2;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6); /* Text shadow for readability */
+}
+
+.hero-content p {
+    font-size: 1.3rem; /* Larger paragraph font */
+    margin-bottom: 40px; /* More space */
+    max-width: 700px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); /* Text shadow for readability */
+}
+
+/* Custom Button Styles (Applied on top of Bootstrap's .btn) */
+.btn {
+    display: inline-flex; /* Use flex for icon alignment */
+    align-items: center;
+    justify-content: center;
+    padding: 16px 35px; /* Slightly larger padding */
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600; /* Bolder text */
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+    font-size: 1.15rem; /* Slightly larger font */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Initial shadow */
+}
+
+.btn i {
+    margin-right: 8px; /* Space for icon */
+}
+
+/* Specific Bootstrap button overrides */
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary); /* Match border color */
+}
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-5px); /* More pronounced lift */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+}
+
+.btn-outline-primary { /* Targeting Bootstrap's btn-outline-primary */
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary); /* Text color from primary */
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 12px 25px rgba(196, 155, 99, 0.4); /* Primary color shadow */
+    transform: translateY(-5px); /* More pronounced lift */
+}
+
+/* Scroll Down Indicator - New */
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: white;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+/* Section Styling - General */
+section {
+    padding: 100px 0;
+    background-color: var(--background-light); /* Ensure consistency */
+}
+
+/* Project Goal Section */
+.goal-section {
+    background: linear-gradient(to bottom, var(--background-light), var(--background-gradient-end)); /* Subtle gradient */
+}
+
+.section-title {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-dark);
+    margin-bottom: 70px; /* More space */
+    font-size: 3rem; /* Larger font */
+    position: relative;
+    font-weight: 700;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; /* Lower position */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px; /* Wider line */
+    height: 5px; /* Thicker line */
+    background: var(--primary);
+    border-radius: 2px; /* Slightly rounded ends */
+}
+
+/* .goal-content is now handled by .row and .align-items-center */
+/*
+.goal-content {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+*/
+
+/* .goal-text is now flexible within .col-lg-6 */
+/*
+.goal-text {
+    flex: 1;
+    min-width: 300px;
+}
+*/
+
+.goal-text h3 {
+    font-size: 2.2rem; /* Larger heading */
+    margin-bottom: 25px;
+    color: var(--primary-dark);
+    font-family: 'Playfair Display', serif;
+    line-height: 1.3;
+}
+
+.goal-text p {
+    margin-bottom: 25px;
+    line-height: 1.9; /* More relaxed line height */
+    font-size: 1.05rem;
+    color: #555;
+}
+
+.goal-image {
+    border-radius: 15px; 
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    height: 450px; /* Taller image */
+    position: relative;
+    transition: transform 0.5s ease; /* Add transition for subtle effect */
+}
+
+.goal-image:hover {
+    transform: scale(1.02); /* Slight zoom on hover */
+}
+
+/* Chatbot Section */
+.chat-section {
+    background: linear-gradient(to bottom, var(--background-gradient-end), var(--background-light)); /* Gentle gradient */
+}
+
+.chat-container {
+    background: white;
+    border-radius: 25px; /* More rounded */
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    /* margin: 0 auto; */ /* Managed by Bootstrap's .mx-auto and .col-lg-8 */
+    max-width: 950px; /* Wider chat container, controlled by mx-auto and col-lg-8 */
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column;
+    height: 650px; /* Fixed height for chat area */
+}
+
+.chat-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 25px; /* More padding */
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem; /* Larger font */
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+}
+
+.chat-header i {
+    margin-right: 15px; /* More space */
+    font-size: 1.8rem; /* Larger icon */
+}
+
+.chat-messages {
+    flex-grow: 1; /* Allow messages to take up available space */
+    overflow-y: auto;
+    padding: 30px; /* More padding */
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    margin-bottom: 20px;
+    max-width: 80%; /* Slightly smaller max width */
+    animation: fadeIn 0.4s ease-out; /* Slightly longer fade-in */
+    position: relative;
+}
+
+.message:last-child {
+    margin-bottom: 0; /* No bottom margin on last message */
+}
+
+.user-message {
+    margin-left: auto;
+    background: linear-gradient(135deg, #e0c8b3 0%, #d4b483 100%); /* Softer user message gradient */
+    color: var(--darker); /* Darker text for contrast */
+    border-radius: 22px 22px 5px 22px; /* More organic shape */
+    padding: 18px 25px; /* More padding */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bot-message {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 5px 22px 22px 22px; /* More organic shape */
+    padding: 18px 25px; /* More padding */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    color: var(--dark);
+}
+
+.bot-message::before {
+    content: "🤖";
+    position: absolute;
+    left: -45px; /* Adjusted position */
+    top: 0px; /* Adjusted position */
+    font-size: 2rem; /* Larger icon */
+    background: var(--primary);
+    width: 40px; /* Larger icon background */
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid white; /* White border for contrast */
+}
+
+.input-area {
+    display: flex;
+    padding: 25px; /* More padding */
+    background-color: white;
+    border-top: 1px solid #eee;
+    gap: 15px; /* Space between input and button */
+}
+
+#user-input { /* Targeting the ID directly to override Bootstrap form-control */
+    flex-grow: 1;
+    padding: 18px 25px; /* More padding */
+    border: 2px solid #ddd;
+    border-radius: 35px; /* More rounded */
+    font-size: 1.05rem;
+    outline: none;
+    transition: var(--transition);
+    background-color: #fcfcfc; /* Slight off-white background */
+}
+
+#user-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(198, 155, 99, 0.3); /* Stronger focus shadow */
+}
+
+#send-btn { /* Targeting the ID directly to override Bootstrap button */
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    border-radius: 35px; /* More rounded */
+    padding: 15px 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px; /* More space for icon */
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#send-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(198, 155, 99, 0.5); /* Stronger hover shadow */
+}
+
+/* Typing Indicator Animation - Enhanced */
+.typing-indicator {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    color: var(--primary-dark);
+    font-style: italic;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    margin: 15px auto;
+    width: fit-content;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    margin: 0 3px;
+    animation: dotPulse 1.2s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Craft Gallery */
+.gallery-section {
+    background: var(--background-light); /* Consistent background */
+}
+
+/* .gallery-grid is now handled by Bootstrap's .row with .g-4 for gap */
+/*
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 40px;
+}
+*/
+
+.craft-card {
+    background: white;
+    border-radius: 15px; /* More rounded */
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex; /* Use flex for internal layout */
+    flex-direction: column;
+}
+
+.craft-card:hover {
+    transform: translateY(-12px); /* More pronounced lift */
+    box-shadow: var(--shadow-hover); /* Deeper shadow */
+}
+
+.craft-image {
+    height: 280px; /* Taller image */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Image overlay for gallery cards - New */
+.craft-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.craft-card:hover .craft-image::after {
+    opacity: 1;
+}
+
+.craft-info {
+    padding: 25px; /* More padding */
+    flex-grow: 1; /* Allow info to fill space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.craft-info h3 {
+    font-size: 1.5rem; /* Larger title */
+    margin-bottom: 12px;
+    color: var(--primary-dark);
+    font-family: 'Playfair Display', serif;
+}
+
+.craft-info p {
+    color: #666;
+    margin-bottom: 20px; /* More space */
+    line-height: 1.7;
+}
+
+.craft-type {
+    display: inline-block;
+    background: rgba(196, 155, 99, 0.15); /* Slightly stronger background */
+    color: var(--primary-dark);
+    padding: 8px 18px; /* More padding */
+    border-radius: 25px; /* More rounded */
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition);
+    align-self: flex-start; /* Align to start */
+}
+
+.craft-type:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(196, 155, 99, 0.3);
+}
+
+/* Team Section */
+.team-section {
+    background: linear-gradient(to bottom, var(--background-gradient-end), var(--background-light)); /* Consistent gradient */
+}
+
+/* .team-members is now handled by Bootstrap's .row with .g-4 for gap */
+/*
+.team-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 35px;
+    margin-top: 60px;
+}
+*/
+
+.member-card {
+    background: white;
+    border-radius: 20px; /* More rounded */
+    padding: 35px; /* More padding */
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: var(--transition);
+    border: 1px solid #f0f0f0; /* Subtle border */
+}
+
+.member-card:hover {
+    transform: translateY(-15px); /* More pronounced lift */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Deeper shadow */
+    border-color: var(--primary); /* Highlight border on hover */
+}
+
+.member-icon {
+    width: 130px; /* Larger icon container */
+    height: 130px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 50%;
+    margin: 0 auto 25px; /* More space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem; /* Larger icon */
+    color: white;
+    box-shadow: 0 8px 20px rgba(196, 155, 99, 0.4); /* Stronger shadow */
+    border: 4px solid white; /* White border */
+}
+
+.member-name {
+    font-weight: 700; /* Bolder name */
+    margin-bottom: 8px;
+    color: var(--darker); /* Darker name color */
+    font-size: 1.5rem; /* Larger name font */
+    font-family: 'Playfair Display', serif;
+}
+
+.member-role {
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 1.1rem; /* Slightly larger role font */
+    font-weight: 500;
+}
+
+.member-email {
+    background: rgba(212, 180, 131, 0.1);
+    padding: 12px; /* More padding */
+    border-radius: 10px; /* More rounded */
+    margin: 20px 0;
+    font-size: 0.95rem;
+    word-break: break-all;
+    color: var(--primary-dark);
+    font-weight: 500;
+}
+
+.member-contact {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* More space */
+    margin-top: 15px;
+}
+
+.member-contact a {
+    color: var(--primary-dark);
+    font-size: 1.5rem; /* Larger icons */
+    transition: var(--transition);
+}
+
+.member-contact a:hover {
+    color: var(--primary);
+    transform: translateY(-5px); /* More pronounced lift */
+}
+
+/* Footer */
+footer {
+    background: var(--darker); /* Darker background */
+    color: white;
+    padding: 80px 0 40px; /* More padding */
+}
+
+/* .footer-content is now handled by Bootstrap's .row with .g-5 */
+/*
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 50px;
+    margin-bottom: 50px;
+}
+*/
+
+.footer-column h3 {
+    font-size: 1.8rem; /* Larger heading */
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 15px;
+    color: var(--primary); /* Gold color for headings */
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+
+.footer-column h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px; /* Wider line */
+    height: 3px; /* Thicker line */
+    background: var(--primary);
+    border-radius: 1px;
+}
+
+.footer-column p, .footer-column a {
+    color: rgba(255, 255, 255, 0.7); /* Slightly lighter text */
+    margin-bottom: 12px;
+    display: block;
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+
+.footer-column p i {
+    margin-right: 10px; /* Space for icon */
+    color: var(--primary);
+}
+
+.footer-column a:hover {
+    color: white;
+    padding-left: 10px; /* More prominent hover effect */
+}
+
+.social-links {
+    display: flex;
+    gap: 20px; /* More space */
+    margin-top: 25px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px; /* Larger social icons */
+    height: 45px;
+    background: rgba(255, 255, 255, 0.15); /* Slightly stronger background */
+    border-radius: 50%;
+    font-size: 1.4rem; /* Larger icons */
+    transition: var(--transition);
+    color: white;
+}
+
+.social-links a:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(196, 155, 99, 0.4);
+}
+
+.copyright {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    line-height: 1.8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- NEW: Sample Questions Section Styles (Updated for improved aesthetics) --- */
+.sample-questions {
+    max-width: 950px;
+    margin: 30px auto 0;
+    padding: 30px;
+    background: linear-gradient(to right, var(--background-light), var(--background-gradient-end));
+    border-radius: 25px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.sample-questions h5 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.sample-questions h5::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 1px;
+}
+
+.sample-question-badge {
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--dark);
+    background: var(--light);
+    border: 2px solid var(--primary);
+    flex-grow: 1;
+    min-width: 150px;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sample-question-badge:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(196, 155, 99, 0.4);
+    border-color: var(--primary-dark);
+}
+/* --- END OF NEW STYLES --- */
+
+
+/* Responsive - Most of these will still be relevant for custom elements, 
+    but Bootstrap will handle the core grid responsiveness */
+@media (max-width: 992px) { /* Adjusted breakpoint */
+    .hero-content h1 {
+        font-size: 3.5rem;
+    }
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+    /* .goal-content flex-direction: column handled by Bootstrap's col-lg-6 stacking */
+    /* text-align: center needs to be applied to column if needed */
+    .goal-image {
+        width: 80%; /* Might need to use Bootstrap's .w-xxl-80 (custom utility) or adjust col classes */
+        min-width: unset; /* Remove min-width for smaller screens */
+    }
+    .goal-text {
+        min-width: unset; /* Remove min-width */
+    }
+    .goal-text h3 {
+        font-size: 1.8rem;
+    }
+    .chat-container {
+        max-width: 700px;
+    }
+    .bot-message::before {
+        left: -35px; /* Adjust bot icon position */
+        font-size: 1.5rem;
+        width: 30px;
+        height: 30px;
+    }
+    /* team-members grid-template-columns handled by Bootstrap's col-md-6, col-lg-4 */
+    /* New: sample questions responsiveness */
+    .sample-questions {
+        max-width: 700px;
+        padding: 20px;
+    }
+    .sample-question-badge {
+        font-size: 0.9rem;
+        padding: 10px 18px;
+    }
+    .sample-questions h5 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* .nav-links display: none is now handled by Bootstrap's collapsing navbar */
+    /* .mobile-menu-btn display: block is now handled by Bootstrap's navbar-toggler */
+    .hero-content h1 {
+        font-size: 2.8rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+    .btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    /* .btn-outline margin-left now needs to be adjusted using Bootstrap spacing utilities if they are siblings, e.g., me-2 */
+    .section-title {
+        font-size: 2.2rem;
+    }
+    .goal-image {
+        width: 90%;
+        height: 350px;
+    }
+    .chat-container {
+        height: 550px; /* Shorter chat container */
+    }
+    .chat-messages {
+        padding: 20px;
+    }
+    .message {
+        max-width: 95%; /* Allow messages to take more width */
+    }
+    .user-message, .bot-message {
+        padding: 15px 20px;
+    }
+    .bot-message::before {
+        left: -30px;
+    }
+    .input-area {
+        flex-direction: column; /* Stack input and button */
+        padding: 15px;
+    }
+    #user-input {
+        margin-bottom: 10px;
+        padding: 12px 20px;
+    }
+    #send-btn {
+        width: 100%; /* Full width button */
+        /* margin-left: 0; */ /* No longer needed if flex-direction column */
+        padding: 12px 20px;
+        justify-content: center;
+    }
+    /* gallery-grid is now handled by Bootstrap's col-12 for single column on small */
+    /* footer-content is now handled by Bootstrap's col-12 for single column on small */
+    .footer-column h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .social-links {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    /* .btn-outline margin-left: 5px; - will be handled by utility classes */
+    .logo {
+        font-size: 1.8rem;
+    }
+    .logo i {
+        font-size: 1.5rem;
+    }
+    .section-title {
+        font-size: 1.8rem;
+    }
+    .goal-text h3 {
+        font-size: 1.5rem;
+    }
+    .goal-image {
+        height: 250px;
+    }
+    .member-card {
+        padding: 25px;
+    }
+    .member-icon {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+    .member-name {
+        font-size: 1.2rem;
+    }
+    .member-role {
+        font-size: 0.9rem;
+    }
+    .member-email {
+        font-size: 0.85rem;
+    }
+    .footer-column h3 {
+        font-size: 1.5rem;
+    }
+    .footer-column p, .footer-column a {
+        font-size: 0.85rem;
+    }
+}

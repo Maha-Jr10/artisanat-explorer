@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisanat Explorer - Découvrez l'artisanat marocain</title>
+    <link rel="icon" type="image/png" href="https://example.com/path/to/your/favicon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body id="top">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="main-nav">
+            <div class="container">
+                <a class="navbar-brand logo" href="#top">
+                    <i class="fas fa-hands"></i>
+                    <span>Artisanat Explorer</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#top">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#objectif">Objectif</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#galerie">Galerie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#chatbot">Chatbot</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#equipe">Équipe</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <h1 class="display-3">Découvrez l'âme de l'artisanat marocain</h1>
+            <p class="lead">Plongez dans un univers de savoir-faire ancestral, d'authenticité et de beauté intemporelle.</p>
+            <div>
+                <a href="#galerie" class="btn btn-primary me-3"><i class="fas fa-palette"></i> Explorer la Galerie</a>
+                <a href="#chatbot" class="btn btn-outline-primary"><i class="fas fa-comment-dots"></i> Parler au Chatbot</a>
+            </div>
+        </div>
+        <a href="#objectif" class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </a>
+    </header>
+
+    <main>
+        <section id="objectif" class="goal-section py-5">
+            <div class="container">
+                <h2 class="section-title">Notre Mission</h2>
+                <div class="row align-items-center g-5"> <div class="col-lg-6"> <div class="goal-text">
+                            <h3>Révéler la richesse et la diversité de l'artisanat marocain au monde.</h3>
+                            <p>Artisanat Explorer est une plateforme dédiée à la valorisation du patrimoine artisanal marocain. Nous connectons artisans et passionnés, offrant une fenêtre unique sur des créations authentiques et des histoires de savoir-faire.</p>
+                            <p>Notre objectif est de préserver ces traditions séculaires tout en les rendant accessibles, contribuant ainsi au développement durable des communautés locales d'artisans.</p>
+                            <a href="#galerie" class="btn btn-primary"><i class="fas fa-info-circle"></i> En savoir plus</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6"> <div class="goal-image" style="background-image: url('{{ url_for('static', filename='images/mission.png') }}');">
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="galerie" class="gallery-section py-5">
+            <div class="container">
+                <h2 class="section-title">Notre Galerie d'Artisanat</h2>
+                <p class="text-center mb-5 lead">Explorez les quatre piliers de l'artisanat marocain mis en lumière par notre projet : la Poterie, la Céramique, la Peinture et la Calligraphie.</p>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Poterie.png') }}');"></div> <div class="craft-info">
+                                <h3>Assiette Traditionnelle Safranée</h3>
+                                <p>Lot de 4 assiettes artisanales en céramique blanche, peintes à la main. Motifs géométriques reflétant l'élégance marocaine. Idéales pour repas ou décoration.</p>
+                                <span class="craft-type">Poterie</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Céramique.png') }}');"></div> <div class="craft-info">
+                                <h3>Bol à Dessert Marocain en Céramique Artisanale</h3>
+                                <p>Bol à dessert exquis en céramique de Fès, fait main. Motifs géométriques bleus et blancs, caractéristiques de la poterie traditionnelle. Idéal pour servir ou décorer.</p>
+                                <span class="craft-type">Céramique</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Peinture.png') }}');"></div> <div class="craft-info">
+                                <h3>Œuvre murale mixte en cuivre, bois et laine</h3>
+                                <p>Œuvre murale artisanale unique combinant peinture, cuivre, bois sculpté et laine d'Anou. Peinture en techniques mixtes pour décoration murale.</p>
+                                <span class="craft-type">Peinture</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Calligraphie.png') }}');"></div> <div class="craft-info">
+                                <h3>Tableaux – Calligraphie islamique design moderne (lot de 2)</h3>
+                                <p>Lot de deux tableaux modernes de calligraphie islamique. Imprimés sur fond multicolore, encadrés et protégés par un verre synthétique.</p>
+                                <span class="craft-type">Calligraphie</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chatbot" class="chat-section py-5">
+            <div class="container">
+                <h2 class="section-title">Notre Assistant Artisanat</h2>
+                <div class="chat-container mx-auto">
+                    <div class="chat-header">
+                        <i class="fas fa-robot"></i>
+                        <span>Discutez avec notre Chatbot</span>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot-message">Bonjour ! Comment puis-je vous aider à explorer l'artisanat marocain aujourd'hui ?</div>
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="input-area">
+                        <input type="text" id="user-input" class="form-control" placeholder="Posez votre question ici...">
+                        <button id="send-btn" class="btn btn-primary">
+                            Envoyer <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div> <div class="sample-questions mt-4">
+                    <h5 class="text-center mb-3">Questions courantes :</h5>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <span class="badge bg-secondary sample-question-badge" onclick="document.getElementById('user-input').value = 'Parle-moi de la poterie marocaine.'; document.getElementById('user-input').focus();">Parle-moi de la poterie marocaine.</span>
+                        <span class="badge bg-secondary sample-question-badge" onclick="document.getElementById('user-input').value = 'Quel est le prix du Bol à Dessert Marocain en Céramique Artisanale?'; document.getElementById('user-input').focus();">Quel est le prix du Bol à Dessert Marocain en Céramique Artisanale?</span>
+                        <span class="badge bg-secondary sample-question-badge" onclick="document.getElementById('user-input').value = 'Décris l\'œuvre murale mixte en cuivre, bois et laine.'; document.getElementById('user-input').focus();">Décris l'œuvre murale mixte en cuivre, bois et laine.</span>
+                        <span class="badge bg-secondary sample-question-badge" onclick="document.getElementById('user-input').value = 'Donne-moi des informations sur les tableaux de calligraphie islamique.'; document.getElementById('user-input').focus();">Donne-moi des informations sur les tableaux de calligraphie islamique.</span>
+                        <span class="badge bg-secondary sample-question-badge" onclick="document.getElementById('user-input').value = 'Quelle est l\'origine de l\'assiette traditionnelle safranée?'; document.getElementById('user-input').focus();">Quelle est l'origine de l'assiette traditionnelle safranée?</span>
+                    </div>
+                </div>
+                </div>
+        </section>
+
+        <section id="equipe" class="team-section py-5">
+            <div class="container">
+                <h2 class="section-title">Rencontrez Notre Équipe</h2>
+                <p class="text-center mb-5 lead">Nous sommes des étudiants en Ingénierie en Science de Données et Intelligence Artificielle (ISDIA) à l'ENSA Fès, passionnés par l'artisanat marocain et le développement de solutions intelligentes. Ce projet est le fruit de notre collaboration.</p>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="member-card">
+                            <div class="member-icon"><i class="fas fa-user-graduate"></i></div>
+                            <h3 class="member-name">John Muhammed</h3>
+                            <p class="member-role">Étudiant ISDIA, ENSA Fès</p>
+                            <div class="member-email">muhammed.john@usmba.ac.ma</div>
+                            <div class="member-contact">
+                                <a href="https://www.linkedin.com/in/Maha-Jr/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                                <a href="https://github.com/Maha-Jr10" target="_blank"><i class="fab fa-github"></i></a>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="member-card">
+                            <div class="member-icon"><i class="fas fa-user-graduate"></i></div>
+                            <h3 class="member-name">Ibnyassine Aya</h3>
+                            <p class="member-role">Étudiante ISDIA, ENSA Fès</p>
+                            <div class="member-email">aya.ibnyasine@usmba.ac.ma</div>
+                            <div class="member-contact">
+                                <a href="https://www.linkedin.com/in/aya-ibnyassine-80b017292?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="member-card">
+                            <div class="member-icon"><i class="fas fa-user-graduate"></i></div>
+                            <h3 class="member-name">Berrahioui Hajar</h3>
+                            <p class="member-role">Étudiante ISDIA, ENSA Fès</p>
+                            <div class="member-email">hajar.berrahioui@usmba.ac.ma</div>
+                            <div class="member-contact">
+                                <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="row g-5"> <div class="col-md-6 col-lg-3">
+                    <div class="footer-column">
+                        <h3>Artisanat Explorer</h3>
+                        <p>Votre portail vers l'authenticité de l'artisanat marocain. Découvrez, apprenez et connectez-vous avec nos talentueux artisans.</p>
+                        <div class="social-links">
+                            <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                            <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="footer-column">
+                        <h3>Liens Utiles</h3>
+                        <a href="#top">Accueil</a>
+                        <a href="#objectif">Notre Mission</a>
+                        <a href="#galerie">Galerie</a>
+                        <a href="#chatbot">Chatbot</a>
+                        <a href="#equipe">Notre Équipe</a>
+                        <a href="#contact">Contact</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="footer-column">
+                        <h3>Catégories Populaires</h3>
+                        <a href="#">Poterie</a>
+                        <a href="#">Céramique</a>
+                        <a href="#">Peinture</a>
+                        <a href="#">Calligraphie</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="footer-column">
+                        <h3>Contactez-Nous</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Fès, Maroc</p>
+                        <p><i class="fas fa-phone-alt"></i> +212 6 47 46 63 38</p>
+                        <p><i class="fas fa-envelope"></i> contact@ae.ma</p>
+                        <p><i class="fas fa-clock"></i> Lun-Ven: 9h - 17h</p>
+                    </div>
+                </div>
+            </div>
+            <hr class="text-white-50 my-5">
+            <p class="copyright">© 2025 Artisanat Explorer. Tous droits réservés. | Conçu avec passion au Maroc.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
