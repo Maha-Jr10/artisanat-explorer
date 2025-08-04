@@ -135,9 +135,8 @@ Le chatbot utilise une architecture innovante :
 |--------------------|---------|
 | **John Muhammed**  | [LinkedIn](https://www.linkedin.com/in/Maha-Jr/) \| [GitHub](https://github.com/Maha-Jr10) |
 | **Ibnyassine Aya** | [LinkedIn](https://www.linkedin.com/in/aya-ibnyassine-80b017292) \| [GitHub](https://github.com/Aya-Ibnyassine) |
-| **Berrahioui Hajar** | |
+| **Berrahioui Hajar** | [LinkedIn](https://www.linkedin.com/in/hajar-berrahioui-03a2332b2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app) \| [GitHub](https://github.com/hajarbberrahioui) |
 
 ## 📄 Licence
-
 
 Ce projet est sous licence [MIT](LICENSE).

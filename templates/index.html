@@ -123,6 +123,24 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Céramique2.png') }}');"></div> <div class="craft-info">
+                                <h3>Vase Marocain en Céramique ou Vase Berbère</h3>
+                                <p>Pichet/vase en terre cuite rouge marocaine artisanale, peint à la main avec du goudron naturel (poix). Traditionnellement utilisé pour boire de l'eau,</p>
+                                <span class="craft-type">Céramique</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="craft-card">
+                            <div class="craft-image" style="background-image: url('{{ url_for('static', filename='images/Peinture2.png') }}');"></div> <div class="craft-info">
+                                <h3>Peinture – Cavalier en tenue traditionnelle marocaine</h3>
+                                <p>Peinture à l’huile sur toile représentant un cavalier en tenue traditionnelle marocaine. Œuvre peinte à la main par l’artiste Ayoub El Fatyhy, signée au recto et verso. </p>
+                                <span class="craft-type">Peinture</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -136,7 +154,9 @@
                         <span>Discutez avec notre Chatbot</span>
                     </div>
                     <div class="chat-messages" id="chat-messages">
-                        <div class="message bot-message">Bonjour ! Comment puis-je vous aider à explorer l'artisanat marocain aujourd'hui ?</div>
+                        <div class="message bot-message markdown-body">
+        <strong>Bonjour !</strong> Comment puis-je vous aider à explorer l'artisanat marocain aujourd'hui ?
+    </div>
                     </div>
                     <div class="typing-indicator" id="typing-indicator">
                         <span></span><span></span><span></span>
@@ -156,71 +176,86 @@
                         <div class="col-md-6 col-lg-4">
                             <div class="question-card">
                                 <div class="card-icon">
-                                    <i class="fas fa-paint-brush"></i>
+                                    <i class="fas fa-barcode"></i>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text">Parle-moi de la poterie marocaine</p>
-                                    <button class="use-question-btn" onclick="useQuestion('Parle-moi de la poterie marocaine.')">
+                                    <p class="card-text">Quel est le numéro de référence du produit "Bol à Dessert Marocain" ?</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Quel est le numéro de référence du produit Bol à Dessert Marocain ?')">
                                         <i class="fas fa-comment-dots me-2"></i> Utiliser
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Carte 2 -->
                         <div class="col-md-6 col-lg-4">
                             <div class="question-card">
                                 <div class="card-icon">
-                                    <i class="fas fa-euro-sign"></i>
+                                    <i class="fas fa-certificate"></i>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text">Prix du Bol à Dessert Marocain</p>
-                                    <button class="use-question-btn" onclick="useQuestion('Quel est le prix du Bol à Dessert Marocain en Céramique Artisanale?')">
+                                    <p class="card-text">Ce produit est-il labellisé ?</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Ce produit est-il labellisé ?')">
                                         <i class="fas fa-comment-dots me-2"></i> Utiliser
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Carte 3 -->
                         <div class="col-md-6 col-lg-4">
                             <div class="question-card">
                                 <div class="card-icon">
-                                    <i class="fas fa-palette"></i>
+                                    <i class="fas fa-award"></i>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text">Décris l'œuvre murale mixte</p>
-                                    <button class="use-question-btn" onclick="useQuestion('Décris l\'œuvre murale mixte en cuivre, bois et laine.')">
+                                    <p class="card-text">Quel est le nom du label pour la coupe en céramique Sahara ?</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Quel est le nom du label pour la coupe en céramique Sahara ?')">
                                         <i class="fas fa-comment-dots me-2"></i> Utiliser
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Carte 4 -->
                         <div class="col-md-6 col-lg-4">
                             <div class="question-card">
                                 <div class="card-icon">
-                                    <i class="fas fa-pen-nib"></i>
+                                    <i class="fas fa-info-circle"></i>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text">Informations sur la calligraphie</p>
-                                    <button class="use-question-btn" onclick="useQuestion('Donne-moi des informations sur les tableaux de calligraphie islamique.')">
+                                    <p class="card-text">Peux-tu me donner la description du produit "Soleil - Boîte en céramique avec fil d'or" ?</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Peux-tu me donner la description du produit Soleil - Boîte en céramique avec fil d\'or ?')">
                                         <i class="fas fa-comment-dots me-2"></i> Utiliser
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Carte 5 -->
                         <div class="col-md-6 col-lg-4">
                             <div class="question-card">
                                 <div class="card-icon">
-                                    <i class="fas fa-map-marker-alt"></i>
+                                    <i class="fas fa-image"></i>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text">Origine de l'assiette safranée</p>
-                                    <button class="use-question-btn" onclick="useQuestion('Quelle est l\'origine de l\'assiette traditionnelle safranée?')">
+                                    <p class="card-text">Montre-moi l'image du produit "Assiette carrée marocaine".</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Montre-moi l\'image du produit Assiette carrée marocaine.')">
+                                        <i class="fas fa-comment-dots me-2"></i> Utiliser
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carte 6 -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="question-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">Quels sont les produits disponibles dans la catégorie "Poterie" ?</p>
+                                    <button class="use-question-btn" onclick="useQuestion('Quels sont les produits disponibles dans la catégorie Poterie ?')">
                                         <i class="fas fa-comment-dots me-2"></i> Utiliser
                                     </button>
                                 </div>
@@ -266,8 +301,8 @@
                             <p class="member-role">Étudiante ISDIA, ENSA Fès</p>
                             <div class="member-email">hajar.berrahioui@usmba.ac.ma</div>
                             <div class="member-contact">
-                                <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
-                                <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                                <a href="https://www.linkedin.com/in/hajar-berrahioui-03a2332b2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank"><i class="fab fa-linkedin"></i></a>
+                                <a href="https://github.com/hajarbberrahioui" target="_blank"><i class="fab fa-github"></i></a>
                                 </div>
                         </div>
                     </div>

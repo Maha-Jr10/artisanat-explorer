@@ -9,6 +9,7 @@ import os
 import requests
 import time
 import warnings
+import markdown
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -37,52 +38,63 @@ def load_artisanat_data():
     try:
         print("Loading Peinture_et_Calligraphie.xlsx...")
         peinture = pd.read_excel("Peinture_et_Calligraphie.xlsx", skiprows=2, header=None)
+        peinture = clean_artisanat_dataframe(peinture)
+
         print(f"Loaded painting data: {peinture.shape[0]} rows, {peinture.shape[1]} columns")
-        
+
         print("Loading Poterie_et_Céramique.xlsx...")
         poterie = pd.read_excel("Poterie_et_Céramique.xlsx", skiprows=2, header=None)
+        poterie = clean_artisanat_dataframe(poterie)
+        
         print(f"Loaded pottery data: {poterie.shape[0]} rows, {poterie.shape[1]} columns")
         
-        # Manual column mapping based on position
-        column_mapping = {
-            0: 'ref',
-            1: 'nom',
-            2: 'categorie',
-            3: 'origine',
-            4: 'date',
-            5: 'label',
-            6: 'certification',
-            7: 'description',
-            8: 'image'
-        }
-        
-        # Apply column mapping to both datasets
-        peinture = peinture.rename(columns=column_mapping)
-        poterie = poterie.rename(columns=column_mapping)
-        
         # Merge datasets
-        df = pd.concat([peinture, poterie], ignore_index=True)
-        print(f"Merged dataset: {df.shape[0]} total records")
-        
-        # Clean data
-        df['ref'] = df['ref'].fillna('NON-RÉFÉRENCÉ')
-        df['date'] = df['date'].fillna('Inconnue')
-        df['label'] = df['label'].fillna('non').str.lower()
-        df['certification'] = df['certification'].fillna('non disponible')
-        
-        # Extract dimensions
-        df['dimensions'] = df['description'].apply(extract_dimensions)
-        
-        # Extract prices
-        df['price'] = df['description'].apply(extract_price)
-        
-        return df
+        full_df = pd.concat([peinture, poterie], ignore_index=True)
+        print(f"Merged dataset: {full_df.shape[0]} total records")
+
+        # Extract dimensions and prices
+        full_df['dimensions'] = full_df['description'].apply(extract_dimensions)
+        full_df['price'] = full_df['description'].apply(extract_price)
+
+        return full_df
         
     except Exception as e:
         print(f"Error loading data: {str(e)}")
         import traceback
         traceback.print_exc()
         return pd.DataFrame()
+
+def clean_artisanat_dataframe(df):
+    # Standardize column names (based on your screenshot)
+    df.columns = [
+        "reference_produit",
+        "nom_produit",
+        "categorie",
+        "unite_production",
+        "date_fabrication",
+        "labelisation",
+        "nom_label",
+        "description",
+        "image"
+    ]
+    # Strip whitespace and replace missing values, including '-'
+    for col in df.columns:
+        df[col] = (
+            df[col]
+            .astype(str)
+            .str.strip()
+            .replace({'nan': '', 'N/A': '', 'NaN': '', '-': ''})
+        )
+        df[col] = df[col].replace('', 'Non spécifié')
+    # Optional: Capitalize or lowercase certain columns
+    df['categorie'] = df['categorie'].str.capitalize()
+    df['labelisation'] = df['labelisation'].str.lower()
+    df['nom_label'] = df['nom_label'].str.capitalize()
+    # Clean description whitespace
+    df['description'] = df['description'].str.replace(r'\s+', ' ', regex=True)
+    # Clean image column
+    df['image'] = df['image'].replace({'Non spécifié': ''})
+    return df
 
 # Helper functions
 def extract_dimensions(desc):
@@ -175,7 +187,7 @@ def init_ai():
         llm = Ollama(model="llama3.2:latest", temperature=0.7)
         qa_chain = RetrievalQA.from_chain_type(
             llm,
-            retriever=vector_store.as_retriever(search_kwargs={"k": 2}),
+            retriever=vector_store.as_retriever(search_kwargs={"k": 5}),
             chain_type="stuff"
         )
         print("QA chain initialized")
@@ -199,7 +211,7 @@ def home():
 
 
 @app.route('/ask', methods=['POST'])
-def ask_question():
+def ask():
     if not qa_system:
         return jsonify({"response": "Système non initialisé. Veuillez vérifier les logs du serveur."})
 
@@ -212,34 +224,20 @@ def ask_question():
         return jsonify({"response": "Veuillez poser une question"})
 
     try:
-        # Prompt amélioré pour des réponses ultra-directes et structurées
+        # Prompt strictement concis pour des réponses précises et sans contenu vague
         prompt = f"""
-        Tu es un expert de l'artisanat marocain. Ton rôle est de fournir des informations concises, 
-        factuelles et strictement structurées en Markdown avec une approche directe sans détour.
+            CONTEXTE :  
+            Tu es un assistant virtuel pour touristes, spécialisé dans l’artisanat marocain.  
+            Tu as accès à la base de données handiCaraft, collectée par l’équipe d’étudiants en Data Science & IA à l’ENSA Fès, qui contient des informations détaillées sur les produits suivants : peinture, calligraphie, poterie, céramique.
 
-        Règles strictes :
-        1. Réponds exclusivement aux questions sur l'artisanat marocain
-        2. Va droit au but sans phrases d'introduction ou de conclusion
-        3. Utilise uniquement les informations du contexte fourni
-        4. Structure la réponse pour mettre en avant les informations clés
-        5. Sois concis - limite-toi aux faits essentiels
-        6. Si une information est manquante, indique-le simplement
+            CONSIGNES :
+            - Avant de répondre, analyse l’ensemble de la base de données pour trouver toutes les informations pertinentes à la question.
+            - Réponds uniquement si la question concerne ces produits.
+            - Ne donne que les informations strictement demandées dans la question. N’ajoute aucun détail supplémentaire, aucune généralité, aucune supposition, ni contenu vague.
+            - Si la question demande une liste, affiche chaque élément sur une nouvelle ligne (une ligne par produit ou élément).
+            - Si la réponse n’existe pas dans la base, indique : "Information non disponible".
 
-        Formatage obligatoire :
-        - Titres principaux en (niveau 2)
-        - Sous-titres en (niveau 3) si nécessaire
-        - Noms de produits en gras
-        - Caractéristiques en italique (prix, dimensions, etc.)
-        - Listes à puces pour les détails techniques
-        - Tableaux pour les comparaisons ou spécifications multiples
-
-        Priorités de réponse :
-        1. Identifie la demande centrale de la question
-        2. Extrait les informations pertinentes du contexte
-        3. Structure la réponse par ordre d'importance
-        4. Élimine tout contenu superflu
-
-        Question: {question}
+            Question : {question}
         """
 
         response = qa_system.invoke(prompt)["result"]
@@ -248,7 +246,10 @@ def ask_question():
         cleaned_response = re.sub(r'\n{2,}', '\n\n', response)  # Supprime les sauts de ligne excessifs
         cleaned_response = re.sub(r'\s{2,}', ' ', cleaned_response)  # Supprime les espaces multiples
         
-        return jsonify({"response": cleaned_response})
+        # Convertir la réponse en HTML
+        html_response = markdown.markdown(cleaned_response, extensions=['extra', 'tables'])
+        
+        return jsonify({"response": html_response})
 
     except Exception as e:
         return jsonify({"response": f"Erreur: {str(e)}"})

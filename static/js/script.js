@@ -162,3 +162,12 @@ async function sendMessage() {
                 event.target.style.color = 'var(--primary-dark)';
             }, 2000);
         }
+
+function addBotMessage(markdownHtml) {
+    const chatMessages = document.getElementById('chat-messages');
+    const botMessageDiv = document.createElement('div');
+    botMessageDiv.classList.add('message', 'bot-message', 'markdown-body');
+    botMessageDiv.innerHTML = markdownHtml;
+    chatMessages.appendChild(botMessageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
