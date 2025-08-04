@@ -28,8 +28,10 @@ ARTISANAT-EXPLORER/
 │   ├── images/                  # Bibliothèque visuelle
 │   │   ├── Calligraphie.png
 │   │   ├── Céramique.png
+│   │   ├── Céramique2.png
 │   │   ├── mission.png
 │   │   ├── Peinture.png
+│   │   ├── Peinture2.png
 │   │   └── Poterie.png
 │   └── js/
 │       └── script.js            # Logique interactive
@@ -138,5 +140,6 @@ Le chatbot utilise une architecture innovante :
 | **Berrahioui Hajar** | [LinkedIn](https://www.linkedin.com/in/hajar-berrahioui-03a2332b2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app) \| [GitHub](https://github.com/hajarbberrahioui) |
 
 ## 📄 Licence
+
 
 Ce projet est sous licence [MIT](LICENSE).
