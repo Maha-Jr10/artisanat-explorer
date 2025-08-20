@@ -1,0 +1,65 @@
+%% Mermaid Diagram: RAG Architecture & Data Flow
+%% Render with: mmdc -i static/images/rag_architecture.mmd -o static/images/rag_architecture.png
+%% Or use an online Mermaid live editor.
+
+flowchart LR
+    subgraph Sources
+        A1["Peinture_et_Calligraphie.xlsx"]
+        A2["Poterie_et_Céramique.xlsx"]
+    end
+
+    A1 --> B["Pandas Loader\n(clean + normalize)"]
+    A2 --> B
+
+    B --> C{"Cache? (df_full.pkl valid)"}
+    C -- Yes --> D1["Load DataFrame\nfrom Pickle"]
+    C -- No --> D2["Build Fresh DataFrame\n+ enrich dimensions/prix"]
+
+    D1 --> E["DataFrame df_full"]
+    D2 --> E
+
+    E --> F{"Vector Store Exists? (chroma_db dir)"}
+
+    F -- Yes --> G["Chroma Load\n+ metadata get"]
+    F -- No --> H["Build Text Chunks\n+ Metadata"] --> I["Embed & Persist\nChroma Vector Store"]
+
+    G --> J{"Metadata Version\nMatches?"}
+    J -- Yes --> K["Reconstruct df_full\nfrom metadata"] --> L["Retriever (k=5)"]
+    J -- No --> H
+
+    I --> L
+
+    subgraph Request Handling
+        Q["/ask Endpoint"]
+        H1["User Question"] --> Q
+        S1["Session History"] --> Q
+        Q --> P{"Product Mention?"}
+        P -- Yes --> P1["Product-Specific Prompt"]
+        P -- No --> P2["General Prompt\nGuidelines"]
+        P1 --> R["LLM (Ollama)"]
+        P2 --> R
+        R --> T["Raw Answer\nMarkdown"]
+        T --> U["Post-Processing\n(newlines, spaces)"]
+        U --> V["Markdown -> HTML"]
+        V --> W["JSON Response"]
+    end
+
+    L --> R
+
+    subgraph Health
+        H2["/health Endpoint\n(ok, records, store_loaded, metadata_version)"]
+    end
+
+    classDef source fill:#fdf6e3,stroke:#b58900,stroke-width:1px,color:#444;
+    classDef process fill:#e0f7fa,stroke:#00838f,stroke-width:1px,color:#044;
+    classDef decision fill:#fff3e0,stroke:#fb8c00,stroke-width:1px,color:#5d3a00;
+    classDef storage fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#311b92;
+    classDef endpoint fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#1b5e20;
+    classDef llm fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+
+    class A1,A2 source;
+    class B,D1,D2,H,H1,S1,P1,P2,T,U,V process;
+    class C,F,J,P decision;
+    class E,I,G,K,L storage;
+    class Q,H2,W endpoint;
+    class R llm;

@@ -77,9 +77,17 @@ userInput.addEventListener('keypress', function(e) {
 });
 
 // Make sendMessage an async function to use await with fetch
+let sending = false; // prevent concurrent sends
+
 async function sendMessage() {
+    if (sending) return; // ignore if already sending
     const userMessageText = userInput.value.trim();
     if (userMessageText === '') return; // Don't send empty messages
+    sending = true;
+    sendBtn.disabled = true;
+    sendBtn.classList.add('disabled');
+    const originalBtnText = sendBtn.innerHTML;
+    sendBtn.innerHTML = 'Envoi...';
 
     // 1. Add user message to chat display
     const userMessageDiv = document.createElement('div');
@@ -136,6 +144,11 @@ async function sendMessage() {
         errorMessageDiv.textContent = "Désolé, une erreur s'est produite lors de la communication avec l'IA. Veuillez réessayer plus tard.";
         chatMessages.appendChild(errorMessageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    } finally {
+        sending = false;
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('disabled');
+        sendBtn.innerHTML = originalBtnText;
     }
 }
 

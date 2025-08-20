@@ -1,8 +1,12 @@
 Flask
 pandas
+openpyxl          # Excel reading engine
+requests          # HTTP calls (Ollama health check)
+markdown          # Convert response to HTML
+pytest
+
+# LangChain & vector store stack
 langchain
 langchain-community
-faiss-cpu
-openpyxl
-regex
-requests
+langchain-ollama  # OllamaEmbeddings
+chromadb          # Persistent vector store
