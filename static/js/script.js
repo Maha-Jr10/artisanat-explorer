@@ -1,11 +1,20 @@
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+// Smooth scrolling for navigation links (supports '#id' and '/#id' on same page)
+document.querySelectorAll('.navbar a').forEach(link => {
+    link.addEventListener('click', function (e) {
+        const href = this.getAttribute('href') || '';
+        const isHashOnly = href.startsWith('#');
+        const isRootHash = href.startsWith('/#');
+        const targetHash = isHashOnly ? href : (isRootHash ? href.slice(1) : ''); // '/#x' -> '#x'
+        const isHome = location.pathname === '/';
+        const willStayOnPage = (isHashOnly && isHome) || (isRootHash && isHome);
+        if (targetHash && willStayOnPage) {
+            const el = document.querySelector(targetHash);
+            if (el) {
+                e.preventDefault();
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        // Otherwise, allow normal navigation (e.g., to '/#galerie' from a subpage)
     });
 });
 
@@ -19,12 +28,14 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Dynamic Navbar Active Link Functionality (as discussed previously)
+// Dynamic Navbar Active Link Functionality (homepage only to avoid overriding server-side active on subpages)
 document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('section[id], footer[id]'); // Corrected selector
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    const isHome = location.pathname === '/';
 
     function changeNavActiveClass() {
+        if (!isHome) return; // don't override active state on non-home pages
         let currentActiveSectionId = 'top';
 
         for (let i = sections.length - 1; i >= 0; i--) {
@@ -45,7 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === `#${currentActiveSectionId}`) {
+            const href = link.getAttribute('href') || '';
+            if (href === `#${currentActiveSectionId}` || href === `/#${currentActiveSectionId}`) {
                 link.classList.add('active');
             }
         });
@@ -54,12 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', changeNavActiveClass);
     changeNavActiveClass();
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            navLinks.forEach(item => item.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
+    // If we land on the homepage with a hash, ensure the intended section is in view smoothly
+    if (isHome && location.hash) {
+        const el = document.querySelector(location.hash);
+        if (el) {
+            setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 50);
+        }
+    }
+
+    // Do not force active state on click; let scroll logic (home) or server-side (subpages) handle it
 });
 
 

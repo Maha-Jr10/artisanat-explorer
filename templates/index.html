@@ -38,6 +38,12 @@
                             <a class="nav-link" href="#galerie">Galerie</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('products_page') }}">Produits</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('analytics_page') }}">Analytique</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="#chatbot">Chatbot</a>
                         </li>
                         <li class="nav-item">
@@ -55,8 +61,9 @@
             <h1 class="display-3">Découvrez l'âme de l'artisanat marocain</h1>
             <p class="lead">Plongez dans un univers de savoir-faire ancestral, d'authenticité et de beauté intemporelle.</p>
             <div>
-                <a href="#galerie" class="btn btn-primary me-3"><i class="fas fa-palette"></i> Explorer la Galerie</a>
-                <a href="#chatbot" class="btn btn-outline-primary"><i class="fas fa-comment-dots"></i> Parler au Chatbot</a>
+                <a href="#galerie" class="btn btn-primary me-2"><i class="fas fa-palette"></i> Explorer la Galerie</a>
+                <a href="{{ url_for('products_page') }}" class="btn btn-outline-light me-2"><i class="fas fa-store"></i> Voir les Produits</a>
+                <a href="{{ url_for('analytics_page') }}" class="btn btn-outline-primary"><i class="fas fa-chart-line"></i> Statistiques</a>
             </div>
         </div>
         <a href="#objectif" class="scroll-indicator">
@@ -86,6 +93,9 @@
             <div class="container">
                 <h2 class="section-title">Notre Galerie d'Artisanat</h2>
                 <p class="text-center mb-5 lead">Explorez les quatre piliers de l'artisanat marocain mis en lumière par notre projet : la Poterie, la Céramique, la Peinture et la Calligraphie.</p>
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('products_page') }}" class="btn btn-lg btn-outline-primary"><i class="fas fa-store"></i> Parcourir tous les produits</a>
+                </div>
                 <div class="row g-4 justify-content-center">
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="craft-card">
@@ -148,6 +158,7 @@
         <section id="chatbot" class="chat-section py-5">
             <div class="container">
                 <h2 class="section-title">Notre Assistant Artisanat</h2>
+                <p class="text-center text-muted">Le système de questions-réponses utilise un pipeline RAG local. Si les modèles LLM ne sont pas disponibles, seules les autres fonctionnalités sont actives.</p>
                 <div class="chat-container mx-auto">
                     <div class="chat-header">
                         <i class="fas fa-robot"></i>

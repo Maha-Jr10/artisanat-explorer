@@ -1,0 +1,26 @@
+/* analytics.css - Enhanced styling for the analytics page */
+
+/* Inner hero banner */
+.inner-hero {
+    position: relative;
+    background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/static/images/Artisanat Explorer RAG System _ Mermaid Chart-2025-08-20-115604.png') center/cover no-repeat;
+}
+.inner-hero-overlay { position:absolute; inset:0; }
+
+/* Charts */
+canvas {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 2em;
+}
+
+.container { max-width: 1200px; }
+.row { margin-bottom: 2em; }
+
+/* Cards for prediction forms */
+.card {
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border: 1px solid #eee;
+}

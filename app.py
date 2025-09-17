@@ -1,18 +1,354 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, make_response
 import pandas as pd
-import os, re, warnings, requests, markdown, pickle
-from langchain_community.vectorstores import Chroma
-from langchain_ollama import OllamaEmbeddings
-from langchain_community.llms import Ollama
-from langchain.chains import RetrievalQA
+import os, re, warnings, requests, pickle
+from urllib.parse import urlparse
+# Optional markdown dependency
+try:
+    import markdown as md_lib
+except Exception:
+    md_lib = None
+
+# Optional LangChain/Ollama stack (backend can run without it)
+try:
+    from langchain_community.vectorstores import Chroma
+    from langchain_ollama import OllamaEmbeddings
+    from langchain_community.llms import Ollama
+    from langchain.chains import RetrievalQA
+    HAS_LLM = True
+except Exception:
+    Chroma = OllamaEmbeddings = Ollama = RetrievalQA = None
+    HAS_LLM = False
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics.pairwise import cosine_similarity
 
 warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
 app.secret_key = "artisanat_explorer_secret_key"
 
+# --- ML Artifacts (initialized lazily) ---
+ml_artifacts = {
+    'initialized': False,
+    'vectorizer': None,
+    'tfidf_matrix': None,
+    'kmeans': None,
+    'clusters': None,
+    'index_by_ref': {},
+    'category_model': None,
+    'label_model': None,
+}
+
+def _json_safe_record(record: dict) -> dict:
+    """Convert pandas/NumPy NaN/NaT to None for JSON safety."""
+    safe = {}
+    for k, v in record.items():
+        try:
+            if pd.isna(v):
+                safe[k] = None
+            else:
+                safe[k] = v
+        except Exception:
+            safe[k] = v
+    return safe
+
+def initialize_ml():
+    """Prepare TF-IDF, KMeans clusters, and simple classifiers for demo predictions."""
+    global df_full, ml_artifacts
+    if df_full is None or df_full.empty:
+        df_full = load_artisanat_data()
+    df = df_full.copy()
+    if df.empty:
+        return
+    # Ensure numeric year
+    if 'annee' in df.columns:
+        df['annee'] = pd.to_numeric(df['annee'], errors='coerce')
+    # Prepare text
+    texts = (df['nom_produit'].fillna('') + ' ' + df['description'].fillna('')).astype(str).tolist()
+    # TF-IDF
+    vectorizer = TfidfVectorizer(max_features=1000, min_df=2, max_df=0.8)
+    try:
+        tfidf_matrix = vectorizer.fit_transform(texts)
+    except ValueError:
+        # Fallback for very small datasets
+        vectorizer = TfidfVectorizer(max_features=200)
+        tfidf_matrix = vectorizer.fit_transform(texts)
+    # KMeans clustering
+    n_samples = tfidf_matrix.shape[0]
+    n_clusters = max(2, min(5, n_samples // 20 or 2))
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    clusters = kmeans.fit_predict(tfidf_matrix)
+    df_full['cluster'] = clusters
+    # Build index by reference
+    index_by_ref = {}
+    for idx, ref in enumerate(df['reference_produit'].fillna('').tolist()):
+        index_by_ref[ref] = idx
+    # Category prediction model (predict category_par_group)
+    y_cat = df['category_par_group'].fillna('Unknown') if 'category_par_group' in df.columns else df['categorie'].fillna('Unknown')
+    X_cat = df[['description', 'unite_production', 'annee']].copy()
+    preprocessor_cat = ColumnTransformer(
+        transformers=[
+            ('text', TfidfVectorizer(max_features=500), 'description'),
+            ('year', Pipeline([
+                ('imputer', SimpleImputer(strategy='median')),
+                ('scaler', StandardScaler())
+            ]), ['annee']),
+            ('prod', Pipeline([
+                ('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+                ('onehot', OneHotEncoder(handle_unknown='ignore'))
+            ]), ['unite_production'])
+        ]
+    )
+    cat_model = Pipeline([
+        ('prep', preprocessor_cat),
+        ('clf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight='balanced'))
+    ])
+    try:
+        cat_model.fit(X_cat, y_cat)
+    except Exception:
+        cat_model = None
+    # Label prediction model (predict labelisation oui/non)
+    y_lab = (df['labelisation'].fillna('').str.lower() == 'oui').astype(int) if 'labelisation' in df.columns else pd.Series([0]*len(df))
+    X_lab = df[['description', 'categorie', 'unite_production', 'annee']].copy()
+    preprocessor_lab = ColumnTransformer(
+        transformers=[
+            ('text', TfidfVectorizer(max_features=500), 'description'),
+            ('cat', Pipeline([
+                ('imputer', SimpleImputer(strategy='constant', fill_value='Unknown')),
+                ('onehot', OneHotEncoder(handle_unknown='ignore'))
+            ]), ['categorie', 'unite_production']),
+            ('year', Pipeline([
+                ('imputer', SimpleImputer(strategy='median')),
+                ('scaler', StandardScaler())
+            ]), ['annee'])
+        ]
+    )
+    lab_model = Pipeline([
+        ('prep', preprocessor_lab),
+        ('clf', RandomForestClassifier(n_estimators=200, random_state=42, class_weight='balanced'))
+    ])
+    try:
+        # Only train if both classes present
+        if y_lab.nunique() > 1:
+            lab_model.fit(X_lab, y_lab)
+        else:
+            lab_model = None
+    except Exception:
+        lab_model = None
+    ml_artifacts.update({
+        'initialized': True,
+        'vectorizer': vectorizer,
+        'tfidf_matrix': tfidf_matrix,
+        'kmeans': kmeans,
+        'clusters': clusters,
+        'index_by_ref': index_by_ref,
+        'category_model': cat_model,
+        'label_model': lab_model,
+    })
+
+# --- Products Page & API ---
+@app.route('/products')
+def products_page():
+    return render_template('products.html')
+
+@app.route('/api/products')
+def api_products():
+    global df_full
+    if df_full is None or df_full.empty:
+        df_full = load_artisanat_data()
+    # Get query params
+    search = request.args.get('search', '').strip().lower()
+    category = request.args.get('category', '').strip().lower()
+    cluster_param = request.args.get('cluster', '').strip()
+    unit_param = request.args.get('unit', '').strip().lower()
+    df = df_full.copy()
+    # Ensure ML artifacts (clusters) ready
+    if 'cluster' not in df.columns or df['cluster'].isna().all():
+        try:
+            initialize_ml()
+            df = df_full.copy()
+        except Exception:
+            pass
+    # Determine category group column
+    group_col = 'category_par_group' if 'category_par_group' in df.columns else (
+        'Category_par_Group' if 'Category_par_Group' in df.columns else None
+    )
+    # Filter by category GROUP (request param name kept as 'category' for backward compatibility)
+    if category and group_col is not None and group_col in df.columns:
+        # Some entries may be non-string; coerce to str
+        df = df[df[group_col].astype(str).str.lower() == category]
+    # Filter by unite_production (user friendly)
+    if unit_param:
+        df = df[df['unite_production'].astype(str).str.lower() == unit_param]
+    # Filter by cluster (kept for backward compatibility)
+    if cluster_param:
+        try:
+            cluster_val = int(cluster_param)
+            df = df[df['cluster'] == cluster_val]
+        except ValueError:
+            pass
+    # Search by product name or description
+    if search:
+        df = df[df['nom_produit'].str.lower().str.contains(search) | df['description'].str.lower().str.contains(search)]
+    # Get unique category GROUPS for filter dropdown (still returned under key 'categories' for UI)
+    if group_col is not None and group_col in df_full.columns:
+        categories = sorted(pd.Series(df_full[group_col]).dropna().astype(str).unique())
+    else:
+        categories = sorted(pd.Series(df_full['categorie']).dropna().astype(str).unique())
+    units_list = sorted(pd.Series(df_full['unite_production']).dropna().astype(str).unique().tolist())
+    # Convert to dict for JSON
+    products = df.fillna('').to_dict(orient='records')
+    return jsonify({'products': products, 'categories': categories, 'units': units_list})
+
+# --- Analytics Page & Data Routes (placed after app init) ---
+@app.route('/analytics')
+def analytics_page():
+    return render_template('analytics.html')
+
+@app.route('/api/analytics')
+def api_analytics():
+    global df_full
+    if df_full is None or df_full.empty:
+        df_full = load_artisanat_data()
+    df = df_full.copy()
+    # Category distribution
+    category_counts = df['categorie'].value_counts().sort_index()
+    # Category group distribution
+    group_col = 'category_par_group' if 'category_par_group' in df.columns else 'Category_par_Group'
+    category_group_counts = df[group_col].value_counts().sort_index()
+    # Labeling status
+    label_col = 'labelisation' if 'labelisation' in df.columns else 'Labelisation'
+    label_counts = df[label_col].value_counts().sort_index()
+    # Yearly production
+    year_col = 'annee' if 'annee' in df.columns else 'Annee'
+    year_counts = df[year_col].dropna().astype(int).value_counts().sort_index()
+    # Stacked area: year x category group
+    pivot = df.dropna(subset=[year_col])
+    pivot[year_col] = pivot[year_col].astype(int)
+    stacked = pivot.pivot_table(index=year_col, columns=group_col, values='reference_produit', aggfunc='count', fill_value=0)
+    # Handmade vs non-handmade over time
+    handmade_col = 'fait_par_main'
+    handmade_time = pivot.pivot_table(index=year_col, columns=handmade_col, values='reference_produit', aggfunc='count', fill_value=0)
+    # Price by category group
+    price_col = 'price' if 'price' in df.columns else 'Prix_Estime'
+    try:
+        df[price_col] = pd.to_numeric(df[price_col], errors='coerce')
+    except Exception:
+        pass
+    price_by_group = df.groupby(group_col)[price_col].mean().dropna()
+    return jsonify({
+        'category_counts': category_counts.to_dict(),
+        'category_group_counts': category_group_counts.to_dict(),
+        'label_counts': label_counts.to_dict(),
+        'year_counts': year_counts.to_dict(),
+        'stacked_area': {
+            'years': list(stacked.index),
+            'groups': list(stacked.columns),
+            'values': stacked.values.tolist()
+        },
+        'handmade_time': {
+            'years': list(handmade_time.index),
+            'types': list(handmade_time.columns),
+            'values': handmade_time.values.tolist()
+        },
+        'price_by_group': price_by_group.to_dict()
+    })
+
+# --- Clustering & Recommendations Endpoints ---
+@app.route('/api/clusters')
+def api_clusters():
+    if not ml_artifacts['initialized']:
+        initialize_ml()
+    clusters = ml_artifacts.get('clusters')
+    if clusters is None:
+        return jsonify({'counts': {}, 'n_clusters': 0})
+    # counts per cluster
+    counts = pd.Series(clusters).value_counts().sort_index().to_dict()
+    return jsonify({'counts': counts, 'n_clusters': int(len(set(clusters)))})
+
+@app.route('/api/recommendations')
+def api_recommendations():
+    ref = request.args.get('reference')
+    # Default to 3 and cap to 3 to always return the three most related
+    k = int(request.args.get('k', 3))
+    k = min(max(k, 1), 3)
+    if not ref:
+        return jsonify({'error': 'reference query param required'}), 400
+    if not ml_artifacts['initialized']:
+        initialize_ml()
+    idx_map = ml_artifacts.get('index_by_ref', {})
+    if ref not in idx_map:
+        return jsonify({'error': 'reference not found'}), 404
+    idx = idx_map[ref]
+    tfidf_matrix = ml_artifacts['tfidf_matrix']
+    sims = cosine_similarity(tfidf_matrix[idx], tfidf_matrix).flatten()
+    # get top k excluding self
+    top_idx = sims.argsort()[::-1]
+    top_idx = [i for i in top_idx if i != idx][:k]
+    recs = []
+    for i in top_idx:
+        row = _json_safe_record(df_full.iloc[i].to_dict())
+        row['similarity'] = float(sims[i])
+        recs.append(row)
+    return jsonify({'reference': ref, 'recommendations': recs})
+
+# --- Prediction Endpoints ---
+@app.route('/api/predict_category', methods=['POST'])
+def api_predict_category():
+    if not ml_artifacts['initialized']:
+        initialize_ml()
+    model = ml_artifacts.get('category_model')
+    if model is None:
+        return jsonify({'error': 'category model unavailable'}), 500
+    data = request.get_json() or {}
+    payload = {
+        'description': data.get('description', ''),
+        'unite_production': data.get('unite_production', 'Unknown'),
+        'annee': data.get('annee', None)
+    }
+    X = pd.DataFrame([payload])
+    try:
+        pred = model.predict(X)[0]
+        proba = None
+        if hasattr(model.named_steps['clf'], 'predict_proba'):
+            probs = model.predict_proba(X)
+            proba = float(probs.max())
+        return jsonify({'predicted': str(pred), 'confidence': proba})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/predict_label', methods=['POST'])
+def api_predict_label():
+    if not ml_artifacts['initialized']:
+        initialize_ml()
+    model = ml_artifacts.get('label_model')
+    if model is None:
+        return jsonify({'error': 'label model unavailable'}), 500
+    data = request.get_json() or {}
+    payload = {
+        'description': data.get('description', ''),
+        'categorie': data.get('categorie', 'Unknown'),
+        'unite_production': data.get('unite_production', 'Unknown'),
+        'annee': data.get('annee', None)
+    }
+    X = pd.DataFrame([payload])
+    try:
+        pred = int(model.predict(X)[0])
+        proba = None
+        if hasattr(model.named_steps['clf'], 'predict_proba'):
+            probs = model.predict_proba(X)
+            proba = float(probs[:, 1][0])
+        return jsonify({'predicted': 'oui' if pred == 1 else 'non', 'probability': proba})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Versioning for stored metadata in Chroma
-METADATA_VERSION = "1.0"
+METADATA_VERSION = "3.0"
 
 # Globals initialized to None
 vector_store = None
@@ -21,6 +357,9 @@ embeddings = None
 
 def check_ollama_connection() -> bool:
     """Check if Ollama server is running and reachable."""
+    if not HAS_LLM:
+        print("[LLM] LangChain/Ollama not installed. Skipping LLM initialization.")
+        return False
     try:
         response = requests.get('http://localhost:11434/api/tags', timeout=10)
         if response.status_code == 200:
@@ -33,31 +372,27 @@ def check_ollama_connection() -> bool:
     return False
 
 DATA_CACHE_PATH = "df_full.pkl"
-EXCEL_FILES = [
-    "Peinture_et_Calligraphie.xlsx",
-    "Poterie_et_Céramique.xlsx"
-]
+# Use the pre-cleaned CSV located in the current project directory
+CSV_FILE = os.path.join(os.path.dirname(__file__), "cleaned_artisanal_products.csv")
 
-def _excel_files_mtime() -> float:
-    times = []
-    for f in EXCEL_FILES:
-        if os.path.exists(f):
-            times.append(os.path.getmtime(f))
-    return max(times) if times else 0.0
+def _csv_file_mtime() -> float:
+    if os.path.exists(CSV_FILE):
+        return os.path.getmtime(CSV_FILE)
+    return 0.0
 
 def load_artisanat_data(use_cache: bool = True) -> pd.DataFrame:
-    """Load + clean Excel sources, with optional pickle cache (df_full.pkl).
+    """Load pre-cleaned dataset from CSV with optional pickle cache (df_full.pkl).
 
     Cache invalidated if:
       - FORCE_RELOAD_DATA env var set
       - Cache file missing
-      - Any source Excel newer than cache
+      - Source CSV newer than cache
     """
     force_reload = os.getenv("FORCE_RELOAD_DATA", "0") in {"1", "true", "True"}
     try:
         if use_cache and not force_reload and os.path.exists(DATA_CACHE_PATH):
             cache_mtime = os.path.getmtime(DATA_CACHE_PATH)
-            if cache_mtime >= _excel_files_mtime():
+            if cache_mtime >= _csv_file_mtime():
                 try:
                     with open(DATA_CACHE_PATH, 'rb') as fh:
                         cached = pickle.load(fh)
@@ -67,30 +402,53 @@ def load_artisanat_data(use_cache: bool = True) -> pd.DataFrame:
                 except Exception as ce:
                     print(f"[DataCache] Failed to load cache, rebuilding. Reason: {ce}")
 
-        print("[DataLoad] Loading Peinture_et_Calligraphie.xlsx ...")
-        peinture = pd.read_excel(EXCEL_FILES[0], skiprows=2, header=None)
-        peinture = clean_artisanat_dataframe(peinture)
-        print(f"[DataLoad] Peinture/Calligraphie: {peinture.shape[0]} rows")
+        if not os.path.exists(CSV_FILE):
+            raise FileNotFoundError(f"CSV source not found at {CSV_FILE}")
 
-        print("[DataLoad] Loading Poterie_et_Céramique.xlsx ...")
-        poterie = pd.read_excel(EXCEL_FILES[1], skiprows=2, header=None)
-        poterie = clean_artisanat_dataframe(poterie)
-        print(f"[DataLoad] Poterie/Céramique: {poterie.shape[0]} rows")
+        print("[DataLoad] Loading pre-cleaned CSV ...")
+        src = pd.read_csv(CSV_FILE)
 
-        full_df = pd.concat([peinture, poterie], ignore_index=True)
-        full_df['dimensions'] = full_df['description'].apply(extract_dimensions)
-        full_df['price'] = full_df['description'].apply(extract_price)
-        print(f"[DataLoad] Merged dataset: {full_df.shape[0]} records")
+        # Map CSV columns to internal schema expected by the app
+        rename_map = {
+            'Reference': 'reference_produit',
+            'Nom_Produit': 'nom_produit',
+            'Categorie': 'categorie',
+            'Unite_Production': 'unite_production',
+            'Date_Fabrication': 'date_fabrication',
+            'Labelisation': 'labelisation',
+            'Nom_Label': 'nom_label',
+            'Description': 'description',
+            'Image': 'image',
+            # Use provided price estimate directly from CSV
+            'Prix_Estime': 'price',
+            'Lien_Image': 'lien_image',
+            'Annee': 'annee',
+            'Image_Disponible': 'image_disponible',
+            'fait_par_main': 'fait_par_main',
+            'Category_par_Group': 'category_par_group',
+        }
+        df = src.rename(columns=rename_map)
+
+        # Ensure required columns exist (no extra feature engineering here)
+        required = list(rename_map.values())
+        # Also ensure optional fields used by prompts exist
+        if 'dimensions' not in df.columns:
+            df['dimensions'] = "Non spécifié"
+        for col in required:
+            if col not in df.columns:
+                df[col] = "Non spécifié"
+
+        print(f"[DataLoad] Loaded dataset: {df.shape[0]} records")
 
         # Persist cache
         if use_cache:
             try:
                 with open(DATA_CACHE_PATH, 'wb') as fh:
-                    pickle.dump(full_df, fh)
+                    pickle.dump(df, fh)
                 print(f"[DataCache] Saved to {DATA_CACHE_PATH}")
             except Exception as se:
                 print(f"[DataCache] Save failed (non-blocking): {se}")
-        return full_df
+        return df
     except Exception as e:
         print(f"Error loading data: {str(e)}")
         import traceback; traceback.print_exc()
@@ -136,7 +494,7 @@ def extract_price(desc: str) -> str:
         return f"{match.group(1)} {match.group(2)}"
     return "Non spécifié"
 
-def init_ai() -> 'RetrievalQA | None':
+def init_ai():
     """Initialize embeddings/LLM + load or build Chroma store with row metadata.
 
     Steps:
@@ -146,6 +504,9 @@ def init_ai() -> 'RetrievalQA | None':
     """
     import traceback, shutil
     global vector_store, df_full, embeddings
+    if not HAS_LLM:
+        print("[LLM] Dependencies missing; QA system disabled.")
+        return None
 
     def build_docs_and_metadata(df: pd.DataFrame):
         texts, metas = [], []
@@ -161,6 +522,12 @@ def init_ai() -> 'RetrievalQA | None':
                 'dimensions': row.get('dimensions', ''),
                 'price': row.get('price', ''),
                 'description': row.get('description', ''),
+                'image': row.get('image', ''),
+                'lien_image': row.get('lien_image', ''),
+                'annee': row.get('annee', ''),
+                'image_disponible': row.get('image_disponible', ''),
+                'fait_par_main': row.get('fait_par_main', ''),
+                'category_par_group': row.get('category_par_group', ''),
                 'metadata_version': METADATA_VERSION
             }
             text = (f"PRODUIT: {md['nom_produit']}\n"
@@ -172,7 +539,13 @@ def init_ai() -> 'RetrievalQA | None':
                     f"NOM DU LABEL: {md['nom_label']}\n"
                     f"DIMENSIONS: {md['dimensions']}\n"
                     f"PRIX: {md['price']}\n"
-                    f"DESCRIPTION: {md['description']}")
+                    f"DESCRIPTION: {md['description']}\n"
+                    f"IMAGE: {md['image']}\n"
+                    f"LIEN IMAGE: {md['lien_image']}\n"
+                    f"ANNÉE: {md['annee']}\n"
+                    f"IMAGE DISPONIBLE: {md['image_disponible']}\n"
+                    f"FAIT PAR MAIN: {md['fait_par_main']}\n"
+                    f"CATÉGORIE (GROUPE): {md['category_par_group']}")
             texts.append(text)
             metas.append(md)
         return texts, metas
@@ -210,10 +583,20 @@ def init_ai() -> 'RetrievalQA | None':
                     print("[ChromaDB] Rebuilt with updated metadata version")
                 else:
                     df_recon = pd.DataFrame(metas)
-                    if 'dimensions' not in df_recon:
-                        df_recon['dimensions'] = df_recon['description'].apply(extract_dimensions)
-                    if 'price' not in df_recon:
-                        df_recon['price'] = df_recon['description'].apply(extract_price)
+                    # Do not perform feature engineering; ensure required fields exist
+                    defaults = {
+                        'dimensions': "Non spécifié",
+                        'price': "Non spécifié",
+                        'image': "Non spécifié",
+                        'lien_image': "Non spécifié",
+                        'annee': "Non spécifié",
+                        'image_disponible': "Non spécifié",
+                        'fait_par_main': "Non spécifié",
+                        'category_par_group': "Non spécifié",
+                    }
+                    for k, v in defaults.items():
+                        if k not in df_recon:
+                            df_recon[k] = v
                     df_full = df_recon.reset_index(drop=True)
                     print(f"[ChromaDB] Reconstructed DataFrame ({len(df_full)} rows, metadata v{version})")
             else:
@@ -250,16 +633,19 @@ def init_ai() -> 'RetrievalQA | None':
 
 # --- ChromaDB check/creation before app startup ---
 
-def ensure_chromadb() -> 'RetrievalQA | None':
+def ensure_chromadb():
     import traceback
     persist_directory = "chroma_db"
+    if not HAS_LLM:
+        print("[LLM] Skipping ChromaDB initialization (LLM stack unavailable).")
+        return None
     if not os.path.exists(persist_directory) or len(os.listdir(persist_directory)) == 0:
         print("[ChromaDB] No existing store, building now...")
         result = init_ai()
         if result is None:
-            print("[FATAL] Could not build ChromaDB. Aborting.")
+            print("[WARN] Could not build ChromaDB. Proceeding without QA system.")
             traceback.print_exc()
-            exit(1)
+            return None
         print("[ChromaDB] Store created.")
         return result
     else:
@@ -272,6 +658,33 @@ qa_system = None  # Will be initialized only when running the app directly
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# --- Simple image proxy to mitigate hotlinking/CORS and broken links ---
+@app.route('/img')
+def img_proxy():
+    url = request.args.get('url', '').strip()
+    if not url or not (url.startswith('http://') or url.startswith('https://')):
+        return redirect(url_for('static', filename='images/img_unavailable.svg'))
+    try:
+        # Many hosts block hotlinking based on Referer. Mimic a first-party request by
+        # sending a Referer matching the image origin and a common Accept header.
+        parsed = urlparse(url)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36',
+            'Referer': origin,
+            'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
+        }
+        resp = requests.get(url, headers=headers, timeout=(5, 15))
+        if resp.status_code != 200 or not resp.content:
+            return redirect(url_for('static', filename='images/img_unavailable.svg'))
+        content_type = resp.headers.get('Content-Type', 'image/jpeg')
+        out = make_response(resp.content)
+        out.headers['Content-Type'] = content_type
+        out.headers['Cache-Control'] = 'public, max-age=86400'
+        return out
+    except Exception:
+        return redirect(url_for('static', filename='images/img_unavailable.svg'))
 
 @app.route('/health')
 def health():
@@ -288,7 +701,7 @@ def health():
 @app.route('/ask', methods=['POST'])
 def ask():
     if not qa_system:
-        return jsonify({"response": "Système non initialisé. Veuillez vérifier les logs du serveur."})
+        return jsonify({"response": "Système de QA non initialisé (LLM non disponible)."})
 
     data = request.get_json()
     if not data or 'question' not in data:
@@ -320,7 +733,7 @@ def ask():
                 break
 
         if produit_cible:
-            # Prompt spécifique pour un produit
+            # Prompt spécifique pour un produit (inclut tous les champs disponibles)
             prompt = f"""
                 CONTEXTE :
                 Tu es un assistant expert de l’artisanat marocain.
@@ -328,11 +741,19 @@ def ask():
                 NOM : {produit_cible.nom_produit}
                 RÉFÉRENCE : {produit_cible.reference_produit}
                 CATÉGORIE : {produit_cible.categorie}
-                DESCRIPTION : {produit_cible.description}
+                UNITÉ DE PRODUCTION : {produit_cible.unite_production}
+                DATE DE FABRICATION : {produit_cible.date_fabrication}
                 LABELISATION : {produit_cible.labelisation}
                 NOM DU LABEL : {produit_cible.nom_label}
-                DIMENSIONS : {produit_cible.dimensions}
+                DESCRIPTION : {produit_cible.description}
                 PRIX : {produit_cible.price}
+                DIMENSIONS : {getattr(produit_cible, 'dimensions', 'Non spécifié')}
+                IMAGE : {getattr(produit_cible, 'image', 'Non spécifié')}
+                LIEN IMAGE : {getattr(produit_cible, 'lien_image', 'Non spécifié')}
+                ANNÉE : {getattr(produit_cible, 'annee', 'Non spécifié')}
+                IMAGE DISPONIBLE : {getattr(produit_cible, 'image_disponible', 'Non spécifié')}
+                FAIT PAR MAIN : {getattr(produit_cible, 'fait_par_main', 'Non spécifié')}
+                CATÉGORIE (GROUPE) : {getattr(produit_cible, 'category_par_group', 'Non spécifié')}
 
                 Question de l'utilisateur : {question}
                 Réponds uniquement avec les informations de ce produit. Si l'information n'existe pas, indique : "Information non disponible".
@@ -366,7 +787,11 @@ def ask():
         session["chat_history"] = chat_history
 
         # Convertir la réponse en HTML
-        html_response = markdown.markdown(cleaned_response, extensions=['extra'])
+        if md_lib:
+            html_response = md_lib.markdown(cleaned_response, extensions=['extra'])
+        else:
+            # Fallback: minimalist HTML
+            html_response = f"<pre>{cleaned_response}</pre>"
 
         return jsonify({"response": html_response})
 

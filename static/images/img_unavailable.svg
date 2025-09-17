@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-label="Image indisponible">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7f3ec"/>
+      <stop offset="100%" stop-color="#efe7db"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <g fill="none" stroke="#c49b63" stroke-width="6" opacity="0.9" transform="translate(250,140)">
+    <rect x="0" y="0" width="300" height="200" rx="16" ry="16"/>
+    <path d="M20 160 L110 90 L170 135 L210 115 L280 160" stroke="#7a6a58" stroke-width="6"/>
+    <circle cx="85" cy="70" r="16" stroke="#7a6a58" stroke-width="6"/>
+    <line x1="-15" y1="-25" x2="315" y2="225" stroke="#c49b63" stroke-width="10" opacity="0.6"/>
+  </g>
+  <text x="400" y="370" text-anchor="middle" font-family="'Poppins', Arial, sans-serif" font-size="28" fill="#7a6a58" font-weight="600">Image indisponible</text>
+</svg>

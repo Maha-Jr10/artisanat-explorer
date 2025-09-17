@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Produits Artisanaux - Artisanat Explorer{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+{% endblock %}
+{% block content %}
+<section class="inner-hero py-5 text-white">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold">Découvrez nos Produits</h1>
+        <p class="lead mb-0">Un voyage au cœur de l'artisanat marocain</p>
+    </div>
+    <div class="inner-hero-overlay"></div>
+</section>
+
+<section class="stats-bar py-3">
+    <div class="container">
+        <div class="row g-3 text-center justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Produits</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value" id="catCount">0</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-value" id="unitCount">0</div>
+                    <div class="stat-label">Unités</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+<div class="container mt-3">
+    <div class="card p-3 shadow-sm mb-3 filters-card">
+        <div class="filters-header d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold text-muted d-flex align-items-center gap-2">
+                <i class="fas fa-sliders-h"></i>
+                <span>Filtrer les résultats</span>
+            </div>
+            <button type="button" id="resetFiltersBtn" class="btn btn-light btn-sm rounded-pill shadow-reset"><i class="fas fa-rotate-left me-1"></i>Réinitialiser</button>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <label for="searchInput" class="form-label">Recherche</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher un produit...">
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <label for="categoryFilter" class="form-label">Catégorie</label>
+                <div class="input-group custom-select-group dropdown">
+                    <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                    <button class="btn btn-light form-select text-start custom-dropdown-toggle dropdown-toggle" type="button" id="categoryDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        Toutes les catégories
+                    </button>
+                    <ul class="dropdown-menu w-100" id="categoryMenu" aria-labelledby="categoryDropdownBtn"></ul>
+                    <input type="hidden" id="categoryFilter" value="">
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <label for="unitFilter" class="form-label">Unité de production</label>
+                <div class="input-group custom-select-group dropdown">
+                    <span class="input-group-text"><i class="fas fa-industry"></i></span>
+                    <button class="btn btn-light form-select text-start custom-dropdown-toggle dropdown-toggle" type="button" id="unitDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        Toutes les unités
+                    </button>
+                    <ul class="dropdown-menu w-100" id="unitMenu" aria-labelledby="unitDropdownBtn"></ul>
+                    <input type="hidden" id="unitFilter" value="">
+                </div>
+            </div>
+        </div>
+        <div id="activeFilters" class="mt-2"></div>
+    </div>
+    <div id="productsList" class="row g-4">
+    </div>
+</div>
+
+<!-- Back to Top Button (products page only) -->
+<button id="backToTop" class="back-to-top" type="button" aria-label="Revenir en haut" title="Haut de page">
+    <i class="fas fa-arrow-up"></i>
+    <span class="visually-hidden">Haut de page</span>
+ </button>
+
+<!-- Recommendations Modal -->
+<div class="modal fade" id="recsModal" tabindex="-1" aria-labelledby="recsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recsLabel">Produits similaires</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="recsContainer" class="row g-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsTitle">Détails du produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailsBody">
+                <!-- Filled dynamically by products.js -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+{% endblock %}

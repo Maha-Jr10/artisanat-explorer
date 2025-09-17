@@ -2,7 +2,7 @@
 :root {
     --primary: #c49b63; /* Moroccan Gold */
     --primary-dark: #8e7037; /* Darker Gold */
-    --secondary: #5d8aa8; /* Steel Blue (could be used for accents) */
+    --secondary: #7a6a58; /* Warm Taupe (no blue) */
     --accent: #d14031; /* Vibrant Red (could be used for highlights) */
     --light: #f8f5f0; /* Off-white / Cream */
     --dark: #333; /* Dark Grey */
@@ -13,6 +13,14 @@
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Softer shadow */
     --shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
     --transition: all 0.3s ease;
+    /* Override Bootstrap core palette to avoid blue */
+    --bs-primary: var(--primary);
+    --bs-primary-rgb: 196, 155, 99;
+    --bs-link-color: var(--primary);
+    --bs-link-hover-color: var(--primary-dark);
+    --bs-info: var(--primary);
+    --bs-info-rgb: 196, 155, 99;
+    --bs-focus-ring-color: rgba(196, 155, 99, 0.25);
 }
 
 * {
@@ -75,7 +83,7 @@ header {
 
 /* .nav-links is now managed by Bootstrap's .navbar-nav */
 .navbar-nav .nav-item {
-        margin-left: 40px; /* More space between links */
+    margin-left: 28px; /* Slightly reduced to fit more links */
 }
 
 .navbar-nav .nav-link { /* Targeting Bootstrap's nav-link */
@@ -94,7 +102,7 @@ header {
 .navbar-nav .nav-link::after {
     content: '';
     position: absolute;
-    bottom: -8px; /* Adjusted position */
+    bottom: -6px; /* Slightly closer to avoid overflow */
     left: 50%; /* Start from center */
     transform: translateX(-50%); /* Center the line */
     width: 0;
@@ -106,6 +114,26 @@ header {
 .navbar-nav .nav-link:hover::after,
 .navbar-nav .nav-link.active::after { /* Active link style */
     width: 100%;
+}
+
+/* Responsive adjustments to ensure all nav links remain visible */
+@media (max-width: 1399.98px) {
+    .logo { font-size: 1.9rem; }
+    .logo i { font-size: 1.7rem; margin-right: 10px; }
+    .navbar-nav .nav-item { margin-left: 22px; }
+}
+
+@media (max-width: 1199.98px) {
+    .logo { font-size: 1.7rem; }
+    .logo i { font-size: 1.5rem; }
+    .navbar-nav .nav-item { margin-left: 16px; }
+    .navbar-nav .nav-link { font-size: 0.95rem; }
+}
+
+@media (max-width: 991.98px) {
+    /* At the collapse breakpoint, Bootstrap stacks items; ensure good spacing */
+    .navbar-nav .nav-item { margin-left: 0; margin-bottom: 8px; }
+    .navbar-nav .nav-link::after { display: none; }
 }
 
 .hero-content {
@@ -161,12 +189,34 @@ header {
     background: var(--primary);
     color: white;
     border-color: var(--primary); /* Match border color */
+    /* Align Bootstrap CSS variables to gold palette to avoid blue fallback */
+    --bs-btn-bg: var(--primary);
+    --bs-btn-border-color: var(--primary);
+    --bs-btn-hover-bg: var(--primary-dark);
+    --bs-btn-hover-border-color: var(--primary-dark);
+    --bs-btn-active-bg: var(--primary-dark);
+    --bs-btn-active-border-color: var(--primary-dark);
+    --bs-btn-focus-shadow-rgb: 196, 155, 99;
 }
 .btn-primary:hover {
     background: var(--primary-dark);
     border-color: var(--primary-dark);
     transform: translateY(-5px); /* More pronounced lift */
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+}
+
+/* Ensure no blue appears on click/active/focus for primary buttons */
+.btn-primary:active,
+.btn-primary.active,
+.btn-check:checked + .btn-primary,
+.show > .btn-primary.dropdown-toggle {
+    color: #fff !important;
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+.btn-primary:focus, .btn-primary:focus-visible {
+    border-color: var(--primary-dark) !important;
+    box-shadow: 0 0 0 .25rem rgba(196, 155, 99, .25) !important;
 }
 
 .btn-outline-primary { /* Targeting Bootstrap's btn-outline-primary */
@@ -178,8 +228,19 @@ header {
 .btn-outline-primary:hover {
     background: var(--primary);
     color: white;
+    border-color: var(--primary-dark);
     box-shadow: 0 12px 25px rgba(196, 155, 99, 0.4); /* Primary color shadow */
     transform: translateY(-5px); /* More pronounced lift */
+}
+
+/* Ensure no blue appears on click/active/focus for outline-primary */
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-check:checked + .btn-outline-primary,
+.show > .btn-outline-primary.dropdown-toggle {
+    color: #fff !important;
+    background-color: var(--primary) !important;
+    border-color: var(--primary-dark) !important;
 }
 
 /* Scroll Down Indicator - New */
@@ -359,6 +420,18 @@ section {
 
 #send-btn:hover {
     background: var(--primary-dark);
+}
+
+/* Remove default blue focus ring on controls */
+.form-control:focus, .form-select:focus, .btn:focus, .btn:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 .25rem rgba(196, 155, 99, .25);
+}
+
+/* Explicitly neutralize Bootstrap blue borders for outline-primary in all interactive states */
+.btn-outline-primary:focus, .btn-outline-primary:active, .btn-outline-primary:focus-visible {
+    border-color: var(--primary-dark) !important;
+    box-shadow: 0 0 0 .25rem rgba(196, 155, 99, .25) !important;
 }
 
 /* Typing Indicator Animation - Enhanced */

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Analytique - Artisanat Explorer{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+{% block content %}
+<section class="inner-hero py-5 text-white">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold">Analyses et Tendances</h1>
+        <p class="lead mb-0">Visualisez les données clés de notre collection artisanale</p>
+    </div>
+    <div class="inner-hero-overlay"></div>
+</section>
+
+<div class="container mt-4">
+    <h1 class="mb-3 section-title">Analyses & Visualisations</h1>
+    <p class="lead text-center mb-4">Explorez les tendances de notre base de produits et testez nos démonstrations de prédiction.</p>
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Prédiction de la catégorie</h5>
+                <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea id="catDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col">
+                        <label class="form-label">Année</label>
+                        <input id="catYear" type="number" class="form-control" placeholder="2023"/>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Unité de production</label>
+                        <input id="catProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="btnPredictCategory" class="btn btn-primary">Prédire</button>
+                    <span id="catResult" class="ms-3 text-success"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Prédiction de la labellisation</h5>
+                <div class="mb-2">
+                    <label class="form-label">Description</label>
+                    <textarea id="labDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
+                </div>
+                <div class="row g-2">
+                    <div class="col">
+                        <label class="form-label">Catégorie</label>
+                        <input id="labCat" type="text" class="form-control" placeholder="Poterie, Peinture..."/>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Unité de production</label>
+                        <input id="labProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Année</label>
+                        <input id="labYear" type="number" class="form-control" placeholder="2023"/>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="btnPredictLabel" class="btn btn-warning">Prédire</button>
+                    <span id="labResult" class="ms-3 text-success"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6"><canvas id="categoryBarChart"></canvas></div>
+        <div class="col-md-6"><canvas id="categoryGroupBarChart"></canvas></div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6"><canvas id="labelPieChart"></canvas></div>
+        <div class="col-md-6"><canvas id="yearLineChart"></canvas></div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12"><canvas id="stackedAreaChart"></canvas></div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12"><canvas id="handmadeBarChart"></canvas></div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-12"><canvas id="priceBarChart"></canvas></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

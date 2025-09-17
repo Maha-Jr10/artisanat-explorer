@@ -1,0 +1,209 @@
+/* products.css - Elevated styling for the products page */
+
+/* Page-scoped variables */
+:root {
+    /* Arch-like near-black for unit badges (softer than pure black) */
+    --unit-badge: #3a342e; /* warm charcoal */
+}
+
+/* Inner hero banner */
+.inner-hero {
+    position: relative;
+    /* Use a clean, text-free image and stronger gradient for contrast */
+    background: linear-gradient(rgba(0,0,0,0.72), rgba(0,0,0,0.68)), url('/static/images/Céramique2.png') center/cover no-repeat;
+    min-height: 38vh;
+    display: flex;
+    align-items: center;
+}
+/* Additional soft overlay to reduce background distraction */
+.inner-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%);
+    pointer-events: none;
+}
+.inner-hero .container { position: relative; z-index: 1; }
+.inner-hero h1 { text-shadow: 0 6px 26px rgba(0,0,0,0.6); }
+.inner-hero p { opacity: 0.98; text-shadow: 0 2px 10px rgba(0,0,0,0.45); }
+
+.page-intro { margin-top: 12px; margin-bottom: 8px; }
+.lead-limiter { max-width: 900px; }
+
+/* Stats bar */
+.stats-bar { background: #f4efe6; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+.stat-value { font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); font-family: 'Playfair Display', serif; }
+.stat-label { color: #6b6b6b; font-weight: 500; }
+
+/* Filters card tweaks */
+.filters-card { background: #fff; border-radius: 16px; padding: 12px 14px; }
+.filters-header { border-bottom: 1px solid #f1f1f1; padding-bottom: 10px; }
+.filters-header .fw-semibold span { font-size: 1.35rem; font-weight: 800; }
+.filters-header .fw-semibold .fa-sliders-h { font-size: 1.45rem; }
+.filters-card .form-label { font-weight: 600; color: #555; }
+.filters-card .form-control, .filters-card .form-select { border-radius: 10px; }
+.filters-card .input-group-text { background: #fafafa; border: 1px solid #eee; }
+.shadow-reset { box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+.filters-card .input-group .form-control, .filters-card .input-group .form-select { border-left: 0; }
+.filters-card #activeFilters { display:flex; gap:8px; flex-wrap:wrap; }
+.filter-chip { background: rgba(196, 155, 99, 0.12); color: var(--primary-dark); border: 1px solid var(--primary); padding: 6px 10px; border-radius: 999px; font-size: .85rem; }
+.filters-card .form-label { font-weight: 600; color: #555; }
+.filters-card .form-control, .filters-card .form-select { border-radius: 10px; }
+/* Remove default blue highlight in select dropdown (supported browsers) */
+.filters-card .form-select option:hover,
+.filters-card .form-select option:focus,
+.filters-card .form-select option:checked {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+/* Custom dropdown styles for filters */
+.custom-select-group .custom-dropdown-toggle {
+    border: 1px solid #e9e3da;
+    border-left: 0;
+    border-radius: 0 10px 10px 0;
+    background: #fff;
+    color: #333;
+    padding: .55rem .9rem;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    font-weight: 500; /* Soften from global .btn 600 */
+    box-shadow: none !important; /* Flat like the input */
+    transform: none !important;
+}
+.custom-select-group .custom-dropdown-toggle:hover,
+.custom-select-group .custom-dropdown-toggle:active {
+    background: #fff;
+    box-shadow: none !important; /* No elevation on hover */
+    border-color: #e9e3da;
+}
+.custom-select-group .custom-dropdown-toggle:focus {
+    box-shadow: 0 0 0 .25rem rgba(196, 155, 99, .25);
+    border-color: var(--primary);
+}
+.custom-select-group .custom-dropdown-toggle::after {
+    margin-left: auto;
+    color: var(--primary-dark);
+}
+.custom-select-group .dropdown-menu {
+    border-radius: 10px;
+    border: 1px solid #eee;
+    overflow: hidden;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+    margin-top: 6px;
+}
+.custom-select-group .dropdown-menu .dropdown-item {
+    padding: .55rem .85rem;
+}
+.custom-select-group .dropdown-menu .dropdown-item:hover,
+.custom-select-group .dropdown-menu .dropdown-item:focus,
+.custom-select-group .dropdown-menu .dropdown-item.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* Align input group icon block and controls heights */
+.filters-card .input-group-text {
+    height: 48px;
+    border-right: 0;
+    border-radius: 10px 0 0 10px;
+    display: flex;
+    align-items: center;
+}
+.filters-card .form-control { min-height: 48px; }
+.filters-card .form-select { min-height: 48px; }
+
+/* Header and reset button tweaks */
+.filters-header .shadow-reset {
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 999px;
+    padding: .55rem 1rem;
+}
+.filters-header .shadow-reset:hover { background: #fff; }
+
+/* Removed large inner-page section title to avoid duplication */
+
+/* Filter card */
+.card.shadow-sm { border: 1px solid #eee; border-radius: 14px; }
+
+/* Product cards */
+#productsList .card {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border-radius: 16px;
+    transition: transform .2s ease, box-shadow .2s ease;
+    overflow: hidden;
+}
+#productsList .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+}
+#productsList .card-img-top {
+    height: 220px;
+    object-fit: cover;
+}
+#productsList .card-title { font-size: 1rem; font-weight: 700; }
+#productsList .card-text { font-size: .95rem; color: #555; }
+
+/* Product card enhancements */
+.product-card .card-body { padding: 0.85rem 0.9rem 1rem; }
+.img-wrap { position: relative; }
+.img-wrap::after { content:''; position:absolute; inset:0; background: linear-gradient(to top, rgba(0,0,0,0.25), rgba(0,0,0,0)); }
+.category-pill { position:absolute; left:12px; top:12px; background: var(--primary); color:#fff; padding:6px 12px; border-radius: 999px; font-size: .8rem; font-weight:700; box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.product-card .btn.btn-sm { padding: 0.35rem 0.6rem; }
+.product-card .btn { padding: 0.4rem 0.75rem; font-size: .95rem; border-radius: 14px; }
+.product-card .btn.btn-sm { padding: 0.32rem 0.6rem; font-size: .9rem; border-radius: 12px; }
+/* Disable hover translation for card action buttons only */
+.product-card .btn.btn-primary:hover,
+.product-card .btn.btn-outline-primary:hover { transform: none; }
+
+/* Make modal footer close button slightly smaller as well */
+.modal-footer .btn { padding: 0.5rem 1rem; font-size: 1rem; border-radius: 16px; }
+
+/* Clamp long descriptions */
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Badges */
+#productsList .badge { margin-right: .4em; margin-top: .4em; }
+#productsList .badge.bg-primary { background: var(--primary) !important; }
+#productsList .badge.bg-secondary { background: #7a6a58 !important; }
+#productsList .badge.bg-dark { background: var(--unit-badge) !important; color: #fff; }
+
+/* Modal cards */
+#recsContainer .card { border-radius: 14px; }
+#recsContainer .card-body .badge { display: inline-block; margin-right: .4em; margin-top: .4em; }
+#recsContainer .card-body .d-flex.flex-wrap.gap-2 .badge { margin: 0; }
+#recsContainer .badge.bg-dark { background: var(--unit-badge) !important; color: #fff; }
+
+/* Details modal unit badge */
+#detailsModal .badge.bg-dark { background: var(--unit-badge) !important; color: #fff; }
+
+@media (max-width: 768px) {
+    .section-title { font-size: 1.9rem; }
+    .stat-value { font-size: 1.3rem; }
+}
+
+/* Back to Top button */
+.back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease, background .2s ease;
+    z-index: 1050;
+}
+.back-to-top i { font-size: 1rem; }
+.back-to-top:hover { background: var(--primary-dark); transform: translateY(-2px); }
+.back-to-top:focus { outline: none; box-shadow: 0 0 0 .25rem rgba(196, 155, 99, .25); }
+.back-to-top.show { opacity: 1; pointer-events: auto; }
