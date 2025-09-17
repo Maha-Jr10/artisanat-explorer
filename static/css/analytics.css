@@ -1,26 +1,35 @@
-/* analytics.css - Enhanced styling for the analytics page */
+/* analytics.css - Enhanced styling for the analytics page (aligned with products) */
 
 /* Inner hero banner */
 .inner-hero {
     position: relative;
-    background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/static/images/Artisanat Explorer RAG System _ Mermaid Chart-2025-08-20-115604.png') center/cover no-repeat;
+    background: linear-gradient(rgba(0,0,0,0.72), rgba(0,0,0,0.68)), url('/static/images/Peinture2.png') center/cover no-repeat;
+    min-height: 32vh;
+    display: flex;
+    align-items: center;
 }
-.inner-hero-overlay { position:absolute; inset:0; }
+.inner-hero-overlay { position:absolute; inset:0; background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%); }
+.inner-hero .container { position: relative; z-index: 1; }
+.inner-hero h1 { text-shadow: 0 6px 26px rgba(0,0,0,0.6); }
+.inner-hero p { opacity: 0.98; text-shadow: 0 2px 10px rgba(0,0,0,0.45); }
+
+/* Stats bar */
+.stats-bar { background: #f4efe6; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+.stat-value { font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); font-family: 'Playfair Display', serif; }
+.stat-label { color: #6b6b6b; font-weight: 500; }
 
 /* Charts */
-canvas {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 2em;
-}
+/* Ensure all charts share the same dimensions */
+canvas { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2em; border: 1px solid #eee; padding: 10px; width: 100% !important; height: 360px !important; }
+
+/* Keep columns consistent spacing */
+.row > [class^="col-"] > canvas { display: block; }
 
 .container { max-width: 1200px; }
 .row { margin-bottom: 2em; }
 
 /* Cards for prediction forms */
-.card {
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    border: 1px solid #eee;
-}
+.card { border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); border: 1px solid #eee; }
+.card.shadow-sm { border: 1px solid #eee; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+
+.section-title { text-align:center; font-family: 'Playfair Display', serif; color: var(--primary-dark); font-weight: 800; }

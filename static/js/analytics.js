@@ -4,18 +4,42 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/analytics')
         .then(res => res.json())
         .then(data => {
-            // 1. Category Bar Chart
-            new Chart(document.getElementById('categoryBarChart'), {
+            // Update stats bar
+            const total = Object.values(data.category_counts || {}).reduce((a,b)=>a+b,0);
+            const catGroups = Object.keys(data.category_group_counts || {}).length;
+            const units = Object.keys(data.unit_counts || {}).length;
+            const totalEl = document.getElementById('totalCount');
+            const catGroupEl = document.getElementById('catGroupCount');
+            const unitEl = document.getElementById('unitCount');
+            if (totalEl) totalEl.textContent = total;
+            if (catGroupEl) catGroupEl.textContent = catGroups;
+            if (unitEl) unitEl.textContent = units;
+
+            const gold = '#c49b63';
+            const goldDark = '#8e7037';
+            const taupe = '#7a6a58';
+            const taupeLite = 'rgba(122,106,88,0.25)';
+            const goldLite = 'rgba(196,155,99,0.25)';
+
+            // 1. Top unités de production (horizontal bar, top 7)
+            const unitEntries = Object.entries(data.unit_counts || {});
+            unitEntries.sort((a,b) => b[1]-a[1]);
+            const topUnits = unitEntries.slice(0,7);
+            new Chart(document.getElementById('topUnitsBarChart'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(data.category_counts),
+                    labels: topUnits.map(([u]) => u),
                     datasets: [{
                         label: 'Nombre de produits',
-                        data: Object.values(data.category_counts),
-                        backgroundColor: 'rgba(44, 130, 201, 0.7)'
+                        data: topUnits.map(([,c]) => c),
+                        backgroundColor: gold
                     }]
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Distribution par catégorie'}}}
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {title: {display: true, text: 'Top unités de production'}}
+                }
             });
             // 2. Category Group Bar Chart
             new Chart(document.getElementById('categoryGroupBarChart'), {
@@ -25,10 +49,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: [{
                         label: 'Nombre de produits',
                         data: Object.values(data.category_group_counts),
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)'
+                        backgroundColor: taupe
                     }]
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Distribution par groupe de catégorie'}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Distribution par groupe de catégorie'}}}
             });
             // 3. Label Pie Chart
             new Chart(document.getElementById('labelPieChart'), {
@@ -37,10 +61,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     labels: Object.keys(data.label_counts),
                     datasets: [{
                         data: Object.values(data.label_counts),
-                        backgroundColor: ['#27ae60', '#f1c40f', '#e67e22', '#95a5a6']
+                        backgroundColor: [gold, taupe, goldDark, '#b3a591']
                     }]
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Répartition des produits labellisés'}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Répartition des produits labellisés'}}}
             });
             // 4. Year Line Chart
             new Chart(document.getElementById('yearLineChart'), {
@@ -50,12 +74,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: [{
                         label: 'Nombre de produits',
                         data: Object.values(data.year_counts),
-                        borderColor: '#16a085',
-                        backgroundColor: 'rgba(22, 160, 133, 0.2)',
+                        borderColor: goldDark,
+                        backgroundColor: goldLite,
                         fill: true
                     }]
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Volume de production par année'}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Volume de production par année'}}}
             });
             // 5. Stacked Area Chart (as line chart with fill)
             new Chart(document.getElementById('stackedAreaChart'), {
@@ -65,10 +89,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: data.stacked_area.groups.map((g, i) => ({
                         label: g,
                         data: data.stacked_area.values.map(row => row[i]),
-                        fill: true
+                        fill: true,
+                        borderColor: i % 2 === 0 ? goldDark : taupe,
+                        backgroundColor: i % 2 === 0 ? goldLite : taupeLite
                     }))
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Évolution des catégories par année'}},
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Évolution des catégories par année'}},
                     interaction: {mode: 'index', intersect: false},
                     stacked: true
                 }
@@ -81,10 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: data.handmade_time.types.map((t, i) => ({
                         label: t,
                         data: data.handmade_time.values.map(row => row[i]),
-                        backgroundColor: i === 0 ? '#8e44ad' : '#f39c12'
+                        backgroundColor: i === 0 ? gold : taupe
                     }))
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Produits faits main vs non faits main par année'}},
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Produits faits main vs non faits main par année'}},
                     scales: {x: {stacked: true}, y: {stacked: true}}
                 }
             });
@@ -96,10 +122,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: [{
                         label: 'Prix moyen (MAD)',
                         data: Object.values(data.price_by_group),
-                        backgroundColor: '#e67e22'
+                        backgroundColor: gold
                     }]
                 },
-                options: {responsive: true, plugins: {title: {display: true, text: 'Prix moyen par groupe de catégorie'}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {title: {display: true, text: 'Prix moyen par groupe de catégorie'}}}
             });
         });
 

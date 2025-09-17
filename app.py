@@ -241,6 +241,8 @@ def api_analytics():
     except Exception:
         pass
     price_by_group = df.groupby(group_col)[price_col].mean().dropna()
+    # Unit distribution (for stats)
+    unit_counts = df['unite_production'].value_counts().sort_index()
     return jsonify({
         'category_counts': category_counts.to_dict(),
         'category_group_counts': category_group_counts.to_dict(),
@@ -256,7 +258,8 @@ def api_analytics():
             'types': list(handmade_time.columns),
             'values': handmade_time.values.tolist()
         },
-        'price_by_group': price_by_group.to_dict()
+        'price_by_group': price_by_group.to_dict(),
+        'unit_counts': unit_counts.to_dict()
     })
 
 # --- Clustering & Recommendations Endpoints ---
