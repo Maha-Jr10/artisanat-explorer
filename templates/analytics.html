@@ -4,17 +4,21 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
 {% endblock %}
 {% block content %}
-<section class="inner-hero py-5 text-white">
-    <div class="container text-center">
-        <h1 class="display-5 fw-bold">Analyses et Tendances</h1>
-        <p class="lead mb-0">Visualisez les données clés de notre collection artisanale</p>
-    </div>
-    <div class="inner-hero-overlay"></div>
-</section>
-
-<section class="stats-bar py-3">
-    <div class="container">
-        <div class="row g-3 text-center justify-content-center">
+<div class="dashboard-layout">
+<div class="container-fluid px-0 dashboard-dark compact">
+    <!-- Dashboard Title + Stats inside dashboard container -->
+    <div class="dash-top card p-3 shadow-sm mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h1 class="h4 fw-bold mb-1">Tableau de bord</h1>
+                <div class="text-muted">Vue d’ensemble des indicateurs clés</div>
+            </div>
+            <div class="text-end">
+                <div class="small text-uppercase text-muted">Total produits</div>
+                <div class="display-6 fw-bold" id="headerTotal">—</div>
+            </div>
+        </div>
+        <div class="row g-3 text-center justify-content-center mt-2">
             <div class="col-6 col-md-3">
                 <div class="stat-item">
                     <div class="stat-value" id="totalCount">0</div>
@@ -35,79 +39,168 @@
             </div>
         </div>
     </div>
-</section>
+    <div class="row g-3">
+        <!-- LEFT: Sticky, scrollable Filters Sidebar -->
+        <div class="col-12 col-lg-3 order-lg-1 order-2">
+            <aside class="card p-3 shadow-sm sticky-lg-top sidebar-scroll filters-sidebar" style="top: 90px;">
+                <div class="filters-header d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="filters-icon rounded-circle d-flex align-items-center justify-content-center"><i class="fa fa-sliders"></i></div>
+                        <span class="fw-semibold">Filtres</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="filterCount" class="filter-count-badge" aria-label="Nombre de filtres actifs">0</span>
+                        <a id="filtersClearAll" href="#" class="filters-clear-all" role="button">Effacer tout</a>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Groupe de catégorie</label>
+                    <select id="filterCategory" class="form-select">
+                        <option value="">Toutes</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Unité de production</label>
+                    <select id="filterUnit" class="form-select">
+                        <option value="">Toutes</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label" for="filterYearMin">Année</label>
+                    <div class="input-group input-group-joined">
+                        <input id="filterYearMin" type="number" class="form-control joined-start" placeholder="Min" aria-label="Année minimale" />
+                        <span class="input-group-text joined-sep" aria-hidden="true">–</span>
+                        <input id="filterYearMax" type="number" class="form-control joined-end" placeholder="Max" aria-label="Année maximale" />
+                    </div>
+                </div>
+                <div id="filterChips" class="mt-2"></div>
+                <div id="analyticsLoading" class="mt-2" style="display:none;"><span class="spinner-border spinner-border-sm text-warning" role="status"></span> <span class="ms-2">Chargement des données...</span></div>
+            </aside>
+        </div>
 
-<div class="container mt-4">
-    <div class="row mb-5">
-        <div class="col-md-6">
-            <div class="card p-3 shadow-sm">
-                <h5>Prédiction de la catégorie</h5>
-                <div class="mb-2">
-                    <label class="form-label">Description</label>
-                    <textarea id="catDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <label class="form-label">Année</label>
-                        <input id="catYear" type="number" class="form-control" placeholder="2023"/>
-                    </div>
-                    <div class="col">
-                        <label class="form-label">Unité de production</label>
-                        <input id="catProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
+        <!-- RIGHT: KPIs + charts -->
+        <div class="col-12 col-lg-9 order-lg-2 order-1">
+            <!-- Charts Grid (3 columns on large screens) -->
+            <div class="row g-3" id="chartsGrid">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Top unités de production</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="topUnits" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="topUnitsBarChart"></canvas>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button id="btnPredictCategory" class="btn btn-primary">Prédire</button>
-                    <span id="catResult" class="ms-3 text-success"></span>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Distribution par groupe de catégorie</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="catGroup" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="categoryGroupBarChart"></canvas>
+                    </div>
                 </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Répartition des produits labellisés</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="labelPie" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="labelPieChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Volume de production par année</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="yearLine" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="yearLineChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Évolution des catégories par année</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="stackedArea" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="stackedAreaChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card chart-card p-2 shadow-sm">
+                        <div class="chart-card-header d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0">Faits main vs non faits main</h6>
+                            <button class="btn btn-sm btn-outline-secondary btn-download" data-chart="handmade" title="Télécharger PNG"><i class="fa fa-download"></i></button>
+                        </div>
+                        <canvas class="chart-canvas" id="handmadeBarChart"></canvas>
+                    </div>
+                </div>
+                
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card p-3 shadow-sm">
-                <h5>Prédiction de la labellisation</h5>
-                <div class="mb-2">
-                    <label class="form-label">Description</label>
-                    <textarea id="labDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <label class="form-label">Catégorie</label>
-                        <input id="labCat" type="text" class="form-control" placeholder="Poterie, Peinture..."/>
-                    </div>
-                    <div class="col">
-                        <label class="form-label">Unité de production</label>
-                        <input id="labProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
-                    </div>
-                    <div class="col">
-                        <label class="form-label">Année</label>
-                        <input id="labYear" type="number" class="form-control" placeholder="2023"/>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <button id="btnPredictLabel" class="btn btn-warning">Prédire</button>
-                    <span id="labResult" class="ms-3 text-success"></span>
-                </div>
-            </div>
+
         </div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-6"><canvas id="topUnitsBarChart"></canvas></div>
-        <div class="col-md-6"><canvas id="categoryGroupBarChart"></canvas></div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-6"><canvas id="labelPieChart"></canvas></div>
-        <div class="col-md-6"><canvas id="yearLineChart"></canvas></div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-12"><canvas id="stackedAreaChart"></canvas></div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-12"><canvas id="handmadeBarChart"></canvas></div>
-    </div>
-    <div class="row mb-4">
-        <div class="col-md-12"><canvas id="priceBarChart"></canvas></div>
-    </div>
 </div>
+
+<!-- Predictions section moved below dashboard -->
+<section id="predict" class="py-4">
+    <div class="container">
+        <h4 class="mb-3">Prédictions (démo)</h4>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5>Prédiction de la catégorie</h5>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <textarea id="catDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label class="form-label">Année</label>
+                            <input id="catYear" type="number" class="form-control" placeholder="2023"/>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Unité de production</label>
+                            <input id="catProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button id="btnPredictCategory" class="btn btn-primary">Prédire</button>
+                        <span id="catResult" class="ms-3 text-success"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm">
+                    <h5>Prédiction de la labellisation</h5>
+                    <div class="mb-2">
+                        <label class="form-label">Description</label>
+                        <textarea id="labDesc" class="form-control" rows="3" placeholder="Décrivez le produit..."></textarea>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col">
+                            <label class="form-label">Catégorie</label>
+                            <input id="labCat" type="text" class="form-control" placeholder="Poterie, Peinture..."/>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Unité de production</label>
+                            <input id="labProd" type="text" class="form-control" placeholder="Atelier, Coopérative..."/>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Année</label>
+                            <input id="labYear" type="number" class="form-control" placeholder="2023"/>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button id="btnPredictLabel" class="btn btn-warning">Prédire</button>
+                        <span id="labResult" class="ms-3 text-success"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}

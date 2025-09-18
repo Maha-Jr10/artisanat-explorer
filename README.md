@@ -19,6 +19,7 @@ Artisanat Explorer est une application web qui met en valeur le patrimoine artis
 - Analytique
   - Barre d’indicateurs: Produits | Catégories (groupes) | Unités
   - Graphiques Chart.js aux couleurs de la marque et tailles uniformes
+  - Tableau de bord interactif: filtres (groupe, unité, année min/max, recherche) + clic sur barres pour filtrer
   - « Top unités de production » (barres horizontales), distributions par groupe, labels, années, etc.
 - IA locale (optionnelle)
   - RAG local via Ollama (embeddings + LLM) avec persistance ChromaDB

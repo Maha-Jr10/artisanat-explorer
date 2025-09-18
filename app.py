@@ -216,16 +216,45 @@ def api_analytics():
     if df_full is None or df_full.empty:
         df_full = load_artisanat_data()
     df = df_full.copy()
+    # Apply filters from query params
+    category = (request.args.get('category') or '').strip().lower()
+    unit = (request.args.get('unit') or '').strip().lower()
+    year_min = request.args.get('year_min')
+    year_max = request.args.get('year_max')
+    search = (request.args.get('search') or '').strip().lower()
+    # Determine columns
+    group_col = 'category_par_group' if 'category_par_group' in df.columns else 'Category_par_Group'
+    year_col = 'annee' if 'annee' in df.columns else 'Annee'
+    label_col = 'labelisation' if 'labelisation' in df.columns else 'Labelisation'
+
+    # Filters
+    if category:
+        df = df[df[group_col].astype(str).str.lower() == category]
+    if unit:
+        df = df[df['unite_production'].astype(str).str.lower() == unit]
+    if year_min:
+        try:
+            ymin = int(year_min)
+            df = df[pd.to_numeric(df[year_col], errors='coerce').fillna(0).astype(int) >= ymin]
+        except Exception:
+            pass
+    if year_max:
+        try:
+            ymax = int(year_max)
+            df = df[pd.to_numeric(df[year_col], errors='coerce').fillna(0).astype(int) <= ymax]
+        except Exception:
+            pass
+    if search:
+        s = search
+        df = df[(df['nom_produit'].astype(str).str.lower().str.contains(s)) | (df['description'].astype(str).str.lower().str.contains(s))]
+
     # Category distribution
     category_counts = df['categorie'].value_counts().sort_index()
     # Category group distribution
-    group_col = 'category_par_group' if 'category_par_group' in df.columns else 'Category_par_Group'
     category_group_counts = df[group_col].value_counts().sort_index()
     # Labeling status
-    label_col = 'labelisation' if 'labelisation' in df.columns else 'Labelisation'
     label_counts = df[label_col].value_counts().sort_index()
     # Yearly production
-    year_col = 'annee' if 'annee' in df.columns else 'Annee'
     year_counts = df[year_col].dropna().astype(int).value_counts().sort_index()
     # Stacked area: year x category group
     pivot = df.dropna(subset=[year_col])
